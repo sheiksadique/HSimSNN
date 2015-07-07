@@ -51,7 +51,8 @@ cabal-version:       >=1.10
 
 library
   -- Modules exported by the library.
-  exposed-modules:     Simulation.HSimSNN.Network
+  exposed-modules:     Simulation.HSimSNN
+                       Simulation.HSimSNN.Network
                        Simulation.HSimSNN.Population
                        Simulation.HSimSNN.Connections
                        Simulation.HSimSNN.Neuron
