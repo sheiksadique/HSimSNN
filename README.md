@@ -1,9 +1,14 @@
 # HSimSNN
 Haskell based simulator for spiking neural networks
 
+
+Status
+======
+
 (WORK IN PROGRESS)
 
 - This project is very much in its infancy and doesn't do anything yet.
+
 
 Goals
 =====
@@ -28,4 +33,22 @@ Long term goals
 
     1) Synaptic plasticity
     
-    
+
+Download and Installation
+=========================
+
+For installing the library using cabal
+
+```
+$ git clone https://github.com/sheiksadique/HSimSNN.git
+$ cd HSimSNN
+$ cabal install
+```
+
+For documentation
+
+```
+$ cd HSimSNN
+$ cabal haddock --executables
+$ <yourfavourate_browser> ./dist/doc/html/HSimSNN/index.html
+```
