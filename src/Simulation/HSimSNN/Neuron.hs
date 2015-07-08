@@ -10,11 +10,15 @@
 --
 module Simulation.HSimSNN.Neuron where
 
--- Neuron is defined by its state and time at which its state was last evaluated
+-- | Data container for synaptic information related to a connection
+data SynInfo = SynInfo {weight::Double, syntype::String}
+               deriving Show
+
+-- | Neuron is defined by its state and time at which its state was last evaluated
 data Neuron = Neuron {state:: Double, tlastupdate::Double}
               deriving Show
 
--- Initializes a neuron with a given state at time 0
+-- | Initializes a neuron with a given state at time 0
 initNeuron st = Neuron st 0
 
 -- | Returns the membrane potential of a neuron
