@@ -1,3 +1,5 @@
+-- | Simulation.HSimSNN module imports all necessary data types, functions and modules.
+
 module Simulation.HSimSNN 
     (
         module Simulation.HSimSNN.Connections,
