@@ -6,8 +6,10 @@ module Simulation.HSimSNN
         module Simulation.HSimSNN.Network,
         module Simulation.HSimSNN.Neuron,
         module Simulation.HSimSNN.Population,
+        module Simulation.HSimSNN.Spikes,
     ) where
 import Simulation.HSimSNN.Connections
 import Simulation.HSimSNN.Network
 import Simulation.HSimSNN.Neuron
 import Simulation.HSimSNN.Population
+import Simulation.HSimSNN.Spikes

@@ -30,12 +30,7 @@ initNeuron st = Neuron (V.fromList st) 0
 vmem:: Neuron -> Double
 vmem neuron = (V.head.state) neuron -- For now the state of a neuron is the first state variable
 
-
--- | Checks if the membrane potential of a neuron is above threshold value
-aboveThreshold:: Neuron -> Double -> Bool
-aboveThreshold neuron threshold
-        | threshold > vmem neuron = False
-        | otherwise = True
+-- The below block of functions all effect the dynamics of the neuron
 
 
 -- | Evaluate state of neuron at time t
@@ -52,6 +47,27 @@ evaluateNeuronStateAtt neuron t
 
 
 
+-- | Checks if the membrane potential of a neuron is above threshold value
+aboveThreshold:: Neuron -> Double -> Bool
+aboveThreshold neuron threshold
+        | threshold > vmem neuron = False
+        | otherwise = True
 
 
+-- | Compute next spike time of a neuron given current state
+-- TODO: Currently lacks implementation, always Nothing
+timeOfNextSpike:: Neuron -> Maybe Double
+timeOfNextSpike neuron = Nothing
 
+-- | Check for threshold and reset neuron
+-- Should be called with the simulatoin time and only when the neuron spikes
+-- Perhaps this should be an internal/hidden function
+resetNeuron:: Neuron -> Double -> Neuron
+resetNeuron neuron t 
+                -- Hardcasting threshold to 1.0 should parametrize somehow
+                |tlastupdate neuron > t = error "Neuron has already been updated to the future"
+                |aboveThreshold neuron 1.0 = Neuron newstate t 
+                |otherwise = error "Resetting neuron below threshold"
+                where
+                    newstate = V.map (*0) $ state neuron -- neuron dynamics
+                        
