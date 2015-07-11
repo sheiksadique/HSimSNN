@@ -17,3 +17,11 @@ import qualified Data.Vector.Unboxed as V
 -- Note that the index is Int and not Double
 data SpikeTrain = SpikeTrain (V.Vector (Int, Double))
                   deriving Show
+
+
+-- | an empty SpikeTrian
+emptySpikeTrain = SpikeTrain (V.fromList [])
+
+
+-- | Represents next time of spike of a neuron
+data NextSpikeTime = At Double | Never

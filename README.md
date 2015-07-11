@@ -7,7 +7,8 @@ Status
 
 (WORK IN PROGRESS)
 
-- This project is very much in its infancy and doesn't do anything yet.
+- This project is very much in its infancy and doesn't do much yet.
+- Basic data types are defined. Functionality still missing.
 
 
 Goals

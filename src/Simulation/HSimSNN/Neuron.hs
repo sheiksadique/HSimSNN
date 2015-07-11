@@ -11,20 +11,25 @@
 module Simulation.HSimSNN.Neuron where
 
 import qualified Data.Vector.Unboxed as V
+import qualified Simulation.HSimSNN.Spikes as SPK
 
 -- | Data container for synaptic information related to a connection
 data SynInfo = SynInfo {weight::Double, syntype::String}
                deriving Show
 
 
+-- | Neuron threshold
+threshold = 5.0
+
 
 -- | Neuron is defined by its state and time at which its state was last evaluated
 -- The state of a neuron is defined as list of doubles
-data Neuron = Neuron {state::V.Vector Double, tlastupdate::Double}
-              deriving Show
+data Neuron = Neuron {state::V.Vector Double, tlastupdate::Double, tnextspike::SPK.NextSpikeTime}
+instance Show Neuron where
+    show (Neuron st tl _) = "Neuron (" ++ (show $(V.toList) st) ++ " @ " ++ (show tl) ++ ")"
 
 -- | Initializes a neuron with a given state at time 0
-initNeuron st = Neuron (V.fromList st) 0
+initNeuron st = Neuron (V.fromList st) 0 SPK.Never -- TODO: Hardcoding Never incorrect
 
 -- | Returns the membrane potential of a neuron
 vmem:: Neuron -> Double
@@ -39,7 +44,7 @@ vmem neuron = (V.head.state) neuron -- For now the state of a neuron is the firs
 evaluateNeuronStateAtt:: Neuron -> Double -> Neuron
 evaluateNeuronStateAtt neuron t 
                 |t == (tlastupdate neuron) = neuron -- The neuron has already been updated
-                |t > (tlastupdate neuron) = Neuron newstate t
+                |t > (tlastupdate neuron) = Neuron newstate t SPK.Never -- TODO: Hardcoding Never .. incorrect
                 |otherwise = error "This neuron has already been updated to the future"
                 where
                     decayfact = exp ((tlastupdate neuron)-t) -- decay factor
@@ -48,8 +53,8 @@ evaluateNeuronStateAtt neuron t
 
 
 -- | Checks if the membrane potential of a neuron is above threshold value
-aboveThreshold:: Neuron -> Double -> Bool
-aboveThreshold neuron threshold
+aboveThreshold:: Neuron -> Bool
+aboveThreshold neuron
         | threshold > vmem neuron = False
         | otherwise = True
 
@@ -61,13 +66,19 @@ timeOfNextSpike neuron = Nothing
 
 -- | Check for threshold and reset neuron
 -- Should be called with the simulatoin time and only when the neuron spikes
--- Perhaps this should be an internal/hidden function
+-- Perhaps this should be an internal/hidden function ?
+-- Hardcasting threshold to 1.0 TODO: should parametrize somehow
 resetNeuron:: Neuron -> Double -> Neuron
 resetNeuron neuron t 
-                -- Hardcasting threshold to 1.0 should parametrize somehow
                 |tlastupdate neuron > t = error "Neuron has already been updated to the future"
-                |aboveThreshold neuron 1.0 = Neuron newstate t 
+                |aboveThreshold neuron = Neuron newstate t SPK.Never
                 |otherwise = error "Resetting neuron below threshold"
                 where
                     newstate = V.map (*0) $ state neuron -- neuron dynamics
-                        
+                  
+
+-- | Evaluate the next possible spike time of a neuron given its state at time t
+evaluateNextSpikeTime:: Neuron -> SPK.NextSpikeTime
+evaluateNextSpikeTime neuron
+	|aboveThreshold neuron = SPK.At $ tlastupdate neuron
+	|otherwise = SPK.Never
