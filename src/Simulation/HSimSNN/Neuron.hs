@@ -25,6 +25,7 @@ threshold = 5.0
 -- | Neuron is defined by its state and time at which its state was last evaluated
 -- The state of a neuron is defined as list of doubles
 data Neuron = Neuron {state::V.Vector Double, tlastupdate::Double, tnextspike::SPK.NextSpikeTime}
+-- | String representation for Neuron
 instance Show Neuron where
     show (Neuron st tl _) = "Neuron (" ++ (show $(V.toList) st) ++ " @ " ++ (show tl) ++ ")"
 
@@ -59,10 +60,6 @@ aboveThreshold neuron
         | otherwise = True
 
 
--- | Compute next spike time of a neuron given current state
--- TODO: Currently lacks implementation, always Nothing
-timeOfNextSpike:: Neuron -> Maybe Double
-timeOfNextSpike neuron = Nothing
 
 -- | Check for threshold and reset neuron
 -- Should be called with the simulatoin time and only when the neuron spikes
@@ -78,7 +75,7 @@ resetNeuron neuron t
                   
 
 -- | Evaluate the next possible spike time of a neuron given its state at time t
-evaluateNextSpikeTime:: Neuron -> SPK.NextSpikeTime
-evaluateNextSpikeTime neuron
-	|aboveThreshold neuron = SPK.At $ tlastupdate neuron
-	|otherwise = SPK.Never
+nextSpikeTime:: Neuron -> SPK.NextSpikeTime
+nextSpikeTime neuron
+    |aboveThreshold neuron = SPK.At $ tlastupdate neuron
+    |otherwise = SPK.Never

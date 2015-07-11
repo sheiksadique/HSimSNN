@@ -11,5 +11,27 @@ data Network = Network {population:: Population, connections:: Connections}
 
 
 -- | Pass a set of spikes through a network and get the network state and spikes
+--
+-- The basic steps of simulation/transformation are
+--
+-- - Check for the smallest 'timeOfNextSpike' spike in the 'population'
+--
+-- - Compare this to the first spike of SpikeTrain
+--      
+--      - Apply which ever spike occors first to the network
+--
+--      - Append any output spikes to the response 'SpikeTrain'
+--
+-- - Repeat the same process again
+--
+-- - Stop when
+--
+--      - input 'SpikeTrain' is empty 
+--
+--      - and all 'timeOfNextSpike' in the network are 'Never'
+--
+--      - Or when time is larger than some limit
+--
+-- - Return the final 'SpikeTrain' and 'Network'
 passThroughNetwork:: SpikeTrain -> Network -> (SpikeTrain, Network)
 passThroughNetwork st network = (st, network)
