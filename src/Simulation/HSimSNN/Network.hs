@@ -18,12 +18,11 @@ data Network = Network {population:: Population, connections:: Connections}
 --
 -- - Compare this to the first spike of SpikeTrain
 --      
---      - Apply which ever spike occors first to the network
+--      - Apply which ever spike occors first to the network through 'connections'
 --
 --      - Append any output spikes to the response 'SpikeTrain'
 --
--- - Repeat the same process again
---
+-- - Repeat the same process again.
 -- - Stop when
 --
 --      - input 'SpikeTrain' is empty 
@@ -35,3 +34,4 @@ data Network = Network {population:: Population, connections:: Connections}
 -- - Return the final 'SpikeTrain' and 'Network'
 passThroughNetwork:: SpikeTrain -> Network -> (SpikeTrain, Network)
 passThroughNetwork st network = (st, network)
+-- - Check for the smallest 'timeOfNextSpike' spike in the 'population'

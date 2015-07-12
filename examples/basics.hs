@@ -8,6 +8,7 @@ import qualified Data.Vector.Unboxed as V
 main = do
     -- Process a list of spikes through a network
     print $ snd $passThroughNetwork spktrn network
+    print $"First spiking neuorn is " ++ ((show.firstSpikingNeuron) mypop)
         where
             mypop = initPop [[x] | x<-[0,0.1..1.0]] -- Initialize a population of neurons with different states
             conn = Connections mypop [] -- Define an empty connection

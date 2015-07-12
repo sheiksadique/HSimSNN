@@ -25,3 +25,13 @@ emptySpikeTrain = SpikeTrain (V.fromList [])
 
 -- | Represents next time of spike of a neuron
 data NextSpikeTime = At Double | Never
+instance Eq NextSpikeTime where
+    (==) Never Never = True
+    (==) Never (At t) = False
+    (==) (At t) Never = False
+    (==) (At t1) (At t2) = (t1 == t2)
+instance Ord NextSpikeTime where
+    (<=) Never Never = True
+    (<=) Never (At t) = False
+    (<=) (At t) Never = True
+    (<=) (At t1) (At t2) = (t1 <= t2)
