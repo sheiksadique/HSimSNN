@@ -35,3 +35,8 @@ instance Ord NextSpikeTime where
     (<=) Never (At t) = False
     (<=) (At t) Never = True
     (<=) (At t1) (At t2) = (t1 <= t2)
+
+-- | Extract time from NextSpikeTime
+getTime::NextSpikeTime -> Double
+getTime (At t) = t
+getTime Never = error "There is no spike"

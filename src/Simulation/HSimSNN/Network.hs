@@ -4,6 +4,10 @@ module Simulation.HSimSNN.Network where
 import Simulation.HSimSNN.Population
 import Simulation.HSimSNN.Connections
 import Simulation.HSimSNN.Spikes
+import Simulation.HSimSNN.Neuron
+
+import Data.Maybe
+import qualified Data.Vector.Unboxed as V
 
 -- | Network data type encapsulates a network of neurons by holding a Population and its Connections
 data Network = Network {population:: Population, connections:: Connections}
@@ -32,6 +36,24 @@ data Network = Network {population:: Population, connections:: Connections}
 --      - Or when time is larger than some limit
 --
 -- - Return the final 'SpikeTrain' and 'Network'
-passThroughNetwork:: SpikeTrain -> Network -> (SpikeTrain, Network)
-passThroughNetwork st network = (st, network)
--- - Check for the smallest 'timeOfNextSpike' spike in the 'population'
+passThroughNetwork:: SpikeTrain -> Network -> Double -> (SpikeTrain, Network)
+-- Instance for no input just spontanious activity
+passThroughNetwork emptySpikeTrain network tsim
+    | (i==Nothing) = (emptySpikeTrain, network)
+    | otherwise = (outspk, newnetwork)
+    where
+        -- - Check for the smallest 'timeOfNextSpike' spike in the 'population'
+        i = firstSpikingNeuron (population network)
+        indx = fromJust i
+        (spktm, newnetwork) = extractSpike network indx
+        outspk = SpikeTrain $ V.fromList [(indx,spktm)]
+-- Instance for when there is activity
+passThroughNetwork spktrn network tsim = (spktrn, network)
+
+-- | Extract spike from the 'n'th neuron in a Network.
+extractSpike:: Network -> Int -> (Double, Network)
+extractSpike network indx = (getTime t, newnetwork)
+        where
+            t = nextSpikeTime $ ((neurons.population) network)!! indx
+            updtpop = resetNeuronOfPop (population network) (Just indx) (getTime t)
+            newnetwork = Network updtpop (connections network)

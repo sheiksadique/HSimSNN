@@ -26,3 +26,16 @@ firstSpikingNeuron pop
     | otherwise = findIndex (\x -> (nextSpikeTime x)==firstspiketime) $neurons pop
     where    
         firstspiketime = minimum $map nextSpikeTime $neurons pop
+
+
+-- | Update the neuron with index i of a pop at time t
+resetNeuronOfPop:: Population -> Maybe Int -> Double -> Population
+resetNeuronOfPop pop Nothing t = pop
+resetNeuronOfPop pop (Just i) t = updtpop
+        where
+            ns = neurons pop
+            updtpop = Population $ map (\z -> if z==i then 
+                                                (resetNeuron (ns !! z) t)
+                                              else 
+                                                (ns !! z)) 
+                                       [0..((length ns)-1)]
