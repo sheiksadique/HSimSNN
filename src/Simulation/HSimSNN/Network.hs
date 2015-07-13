@@ -37,18 +37,16 @@ data Network = Network {population:: Population, connections:: Connections}
 --
 -- - Return the final 'SpikeTrain' and 'Network'
 passThroughNetwork:: SpikeTrain -> Network -> Double -> (SpikeTrain, Network)
--- Instance for no input just spontanious activity
-passThroughNetwork emptySpikeTrain network tsim
+passThroughNetwork spktrn network tsim
     | (i==Nothing) = (emptySpikeTrain, network)
-    | otherwise = (outspk, newnetwork)
+    | spktrn == emptySpikeTrain = (outspk, newnetwork)
+    | otherwise = (emptySpikeTrain, network)
     where
         -- - Check for the smallest 'timeOfNextSpike' spike in the 'population'
         i = firstSpikingNeuron (population network)
         indx = fromJust i
         (spktm, newnetwork) = extractSpike network indx
         outspk = SpikeTrain $ V.fromList [(indx,spktm)]
--- Instance for when there is activity
-passThroughNetwork spktrn network tsim = (spktrn, network)
 
 -- | Extract spike from the 'n'th neuron in a Network.
 extractSpike:: Network -> Int -> (Double, Network)

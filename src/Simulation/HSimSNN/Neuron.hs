@@ -19,7 +19,7 @@ data SynInfo = SynInfo {weight::Double, syntype::String}
 
 
 -- | Neuron threshold
-threshold = 5.0
+threshold = 1.0
 
 
 -- | Neuron is defined by its state and time at which its state was last evaluated

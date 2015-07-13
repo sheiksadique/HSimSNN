@@ -16,7 +16,7 @@ import qualified Data.Vector.Unboxed as V
 --
 -- Note that the index is Int and not Double
 data SpikeTrain = SpikeTrain (V.Vector (Int, Double))
-                  deriving Show
+                  deriving (Show, Eq)
 
 
 -- | an empty SpikeTrian
