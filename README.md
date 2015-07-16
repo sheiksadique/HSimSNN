@@ -7,25 +7,25 @@ Status
 
 (WORK IN PROGRESS)
 
-- This project is very much in its infancy and doesn't do much yet.
-- Basic data types are defined. Functionality still missing.
+- This project is very much in its infancy.
+- Basic data types are defined.
+- Currently the network can spit spontaneous activity of individual disconnected neurons.
 
 
 Goals
 =====
 
-    -- Event based simulation ? (Perhaps this should be a primary design
-      criterion right from the start?) 
+    -- Event based simulation.
     
     Implementation goals
     --------------------
 
         (In the listed order)
         
-        1) A basic spiking neuron model
-        2) Populations of neurons
-        3) Connections
-        4) Network level simulations
+        1) A basic spiking neuron model - Done, LIF without synapses.
+        2) Populations of neurons - Done.
+        3) Connections - Not yet implemented
+        4) Network level simulations - Semi implemented. Only computes spontaneous activity.
 
 Long term goals
 ===============
@@ -33,6 +33,7 @@ Long term goals
     (Not necessarily in the listed order)
 
     1) Synaptic plasticity
+    2) Complex neuronal dynamics
     
 
 Download and Installation
