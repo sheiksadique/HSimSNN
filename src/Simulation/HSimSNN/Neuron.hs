@@ -69,7 +69,6 @@ resetNeuron:: Neuron -> Double -> Neuron
 resetNeuron neuron t 
                 |tlastupdate neuron > t = error "Neuron has already been updated to the future"
                 |otherwise = Neuron newstate t SPK.Never
-                -- |otherwise = error "Resetting neuron below threshold"
                 where
                     newstate = V.map (*0) $ state neuron -- neuron dynamics
                   
@@ -78,6 +77,7 @@ resetNeuron neuron t
 -- 
 -- This function is essentially what defines the dynamics of the neuron. 
 -- Currently the neuron receives a constant input current
+-- Ideally this should be something users can define and pass at the top level
 nextSpikeTime:: Neuron -> SPK.NextSpikeTime
 nextSpikeTime neuron
     |aboveThreshold neuron = SPK.At $ tlastupdate neuron

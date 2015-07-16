@@ -6,8 +6,10 @@ import Data.List
 import qualified Data.Vector.Unboxed as V
 
 main = do
-    -- Process a list of spikes through a network
+    -- Process a list of spikes through a network (not yet implemented)
     print $ fst $passThroughNetwork spktrn network 20.0
+
+    -- Get spontaneous activity till time t
     print $passThroughNetwork emptySpikeTrain network 20.0
         where
             mypop = initPop [[x] | x<-[0.0,0.1..2.0]] -- Initialize a population of neurons with different states
