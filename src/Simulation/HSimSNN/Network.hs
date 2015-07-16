@@ -38,20 +38,22 @@ data Network = Network {population:: Population, connections:: Connections}
 -- - Return the final 'SpikeTrain' and 'Network'
 passThroughNetwork:: SpikeTrain -> Network -> Double -> (SpikeTrain, Network)
 passThroughNetwork spktrn network tsim
-    | (i==Nothing) = (emptySpikeTrain, network)
-    | spktrn == emptySpikeTrain = (outspk, newnetwork)
-    | otherwise = (emptySpikeTrain, network)
+    | (i==Nothing) = (emptySpikeTrain, network) -- no spontanious spikes 
+    | (nextspktm>At tsim) = (emptySpikeTrain, network)-- next spike time after tsim
+    | spktrn == emptySpikeTrain = (outspk, newnetwork2) -- spont activity
+    | otherwise = (SpikeTrain (V.fromList [(100,0.3)]), network) -- dummy for now
     where
         -- - Check for the smallest 'timeOfNextSpike' spike in the 'population'
         i = firstSpikingNeuron (population network)
         indx = fromJust i
-        (spktm, newnetwork) = extractSpike network indx
-        outspk = SpikeTrain $ V.fromList [(indx,spktm)]
+        nextspktm = nextSpikeTime $ ((neurons.population) network)!! indx
+        newnetwork = resetNeuronNinNet network indx (getTime nextspktm)
+        (SpikeTrain spklst,newnetwork2) = passThroughNetwork spktrn newnetwork tsim
+        outspk = SpikeTrain  $ V.cons (indx,getTime nextspktm) spklst
 
--- | Extract spike from the 'n'th neuron in a Network.
-extractSpike:: Network -> Int -> (Double, Network)
-extractSpike network indx = (getTime t, newnetwork)
+-- | reset 'n'th neuron in a Network at time t.
+resetNeuronNinNet:: Network -> Int -> Double -> Network
+resetNeuronNinNet network n t= newnetwork
         where
-            t = nextSpikeTime $ ((neurons.population) network)!! indx
-            updtpop = resetNeuronOfPop (population network) (Just indx) (getTime t)
+            updtpop = resetNeuronOfPop (population network) (Just n) t
             newnetwork = Network updtpop (connections network)
