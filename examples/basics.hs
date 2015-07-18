@@ -10,7 +10,7 @@ main = do
     print $ fst $passThroughNetwork spktrn network 20.0
 
     -- Get spontaneous activity till time t
-    print $passThroughNetwork emptySpikeTrain network 20.0
+    print $passThroughNetwork EmptySpikeTrain network 20.0
         where
             mypop = initPop [[x] | x<-[0.0,0.1..2.0]] -- Initialize a population of neurons with different states
             conn = Connections mypop [] -- Define an empty connection

@@ -15,12 +15,15 @@ import qualified Data.Vector.Unboxed as V
 -- @
 --
 -- Note that the index is Int and not Double
-data SpikeTrain = SpikeTrain (V.Vector (Int, Double))
+data SpikeTrain = SpikeTrain (V.Vector (Int, Double)) | EmptySpikeTrain
                   deriving (Show, Eq)
 
 
--- | an empty SpikeTrian
-emptySpikeTrain = SpikeTrain (V.fromList [])
+-- | Concatenate two 'SpikeTrain's
+concST :: SpikeTrain -> SpikeTrain -> SpikeTrain
+concST EmptySpikeTrain st = st
+concST st EmptySpikeTrain = st
+concST (SpikeTrain v1) (SpikeTrain v2) = SpikeTrain (v1 V.++ v2)
 
 
 -- | Represents next time of spike of a neuron
