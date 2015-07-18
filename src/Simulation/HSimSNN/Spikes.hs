@@ -14,7 +14,8 @@ import qualified Data.Vector.Unboxed as V
 --      > let spktrain = SpikeTrain $ V.zip indx spktm
 -- @
 --
--- Note that the index is Int and not Double
+-- Note 1 - the index is Int and not Double
+-- Note 2 - TODO: SpikeTrain (V.fromList []) != EmptySpikeTrain although conceptually it is.
 data SpikeTrain = SpikeTrain (V.Vector (Int, Double)) | EmptySpikeTrain
                   deriving (Show, Eq)
 

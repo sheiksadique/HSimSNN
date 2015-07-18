@@ -8,10 +8,32 @@ import Simulation.HSimSNN.Neuron
 
 import Data.Maybe
 import qualified Data.Vector.Unboxed as V
+import Control.Monad.State
 
 -- | Network data type encapsulates a network of neurons by holding a Population and its Connections
 data Network = Network {population:: Population, connections:: Connections}
                deriving Show
+
+
+type NetworkValue = SpikeTrain
+type NetworkState = (Network, SpikeTrain)
+
+
+-- | State monad based implementation of the function
+passThroughNetwork' :: SpikeTrain -> Double -> State NetworkState NetworkValue
+passThroughNetwork' EmptySpikeTrain tsim = do
+    (network, spkout) <- get
+    put (network, (SpikeTrain (V.fromList [(100,0.3)])) )
+    return EmptySpikeTrain
+            
+            
+
+-- dummy function doesn't do anything for now
+passThroughNetwork' spktrn tsim = do
+    (network, spkout) <- get
+    put (network, (SpikeTrain (V.fromList [(100,0.3)])) )
+    return EmptySpikeTrain
+    
 
 
 -- | Pass a set of spikes through a network and get the network state and spikes

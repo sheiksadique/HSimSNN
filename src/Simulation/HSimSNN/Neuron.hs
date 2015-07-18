@@ -12,7 +12,6 @@ module Simulation.HSimSNN.Neuron where
 
 import qualified Data.Vector.Unboxed as V
 import qualified Simulation.HSimSNN.Spikes as SPK
---import Control.Monad.State
 
 -- | Data container for synaptic information related to a connection
 data SynInfo = SynInfo {weight::Double, syntype::String}
