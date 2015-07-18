@@ -70,7 +70,8 @@ library
   -- NOTE: was developed using base >=4.8 && <4.9, didn't specify with the hopes
   -- that it will remain compatible. If it doesn't please let me know!
   build-depends:       base, 
-                       vector
+                       vector,
+                       mtl
   
   -- Directories containing source files.
   hs-source-dirs:      src
