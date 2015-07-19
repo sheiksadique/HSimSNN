@@ -15,26 +15,6 @@ data Network = Network {population:: Population, connections:: Connections}
                deriving Show
 
 
-type NetworkValue = SpikeTrain
-type NetworkState = (Network, SpikeTrain)
-
-
--- | State monad based implementation of the function
-passThroughNetwork' :: SpikeTrain -> Double -> State NetworkState NetworkValue
-passThroughNetwork' EmptySpikeTrain tsim = do
-    (network, spkout) <- get
-    put (network, (SpikeTrain (V.fromList [(100,0.3)])) )
-    return EmptySpikeTrain
-            
-            
-
--- dummy function doesn't do anything for now
-passThroughNetwork' spktrn tsim = do
-    (network, spkout) <- get
-    put (network, (SpikeTrain (V.fromList [(100,0.3)])) )
-    return EmptySpikeTrain
-    
-
 
 -- | Pass a set of spikes through a network and get the network state and spikes
 --
@@ -75,6 +55,42 @@ passThroughNetwork EmptySpikeTrain network tsim
 -- When there is input
 passThroughNetwork spktrn network tsim = (SpikeTrain (V.fromList [(100,0.3)]), network) -- dummy for now
 
+-- | value of network state
+type NetworkValue = SpikeTrain
+-- | network state
+type NetworkState = (Network, SpikeTrain)
+
+
+-- | State monad based implementation of the function passThroughNetwork
+passThroughNetwork' :: SpikeTrain -> Double -> State NetworkState NetworkValue
+passThroughNetwork' EmptySpikeTrain tsim = do
+    (network, spkout) <- get
+    let i = firstSpikingNeuron (population network)
+    if (i==Nothing) 
+        then return spkout
+    else do
+        let indx = fromJust i
+        let nextspktm = nextSpikeTime $ ((neurons.population) network)!! indx
+        if (nextspktm>At tsim) 
+            then return spkout-- next spike time after tsim 
+        else do
+            let newspk = SpikeTrain $V.fromList [(indx,getTime nextspktm)]
+            resetNeuronNinNet' indx (getTime nextspktm)
+            (newnet,_) <- get
+            put ( newnet, 
+                  concST spkout newspk )
+            passThroughNetwork' EmptySpikeTrain tsim
+            
+
+-- dummy function doesn't do anything for now
+passThroughNetwork' spktrn tsim = do
+    (network, spkout) <- get
+    put (network, resspktrn)
+    return resspktrn
+    where
+        resspktrn = SpikeTrain (V.fromList [(100,0.3)])
+    
+
 
 -- | reset 'n'th neuron in a Network at time t.
 resetNeuronNinNet:: Network -> Int -> Double -> Network
@@ -82,3 +98,14 @@ resetNeuronNinNet network n t= newnetwork
         where
             updtpop = resetNeuronOfPop (population network) (Just n) t
             newnetwork = Network updtpop (connections network)
+
+
+-- | State based resetNeuronNinNet
+resetNeuronNinNet' :: Int -> Double -> State NetworkState NetworkValue
+resetNeuronNinNet' n t = do
+    (network, spk) <- get
+    let updtpop = resetNeuronOfPop (population network) (Just n) t
+    let newnetwork = Network updtpop (connections network)
+    put (newnetwork, spk)
+    return spk
+            
