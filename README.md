@@ -15,7 +15,10 @@ Status
 Goals
 =====
 
--- Event based simulation.
+Design goals
+------------
+
+Event based simulation.
 
 Implementation goals
 --------------------
