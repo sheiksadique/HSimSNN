@@ -22,18 +22,18 @@ Implementation goals
 
 (In the listed order)
 
-1) A basic spiking neuron model - Done, LIF without synapses.
-2) Populations of neurons - Done.
-3) Connections - Not yet implemented
-4) Network level simulations - Semi implemented. Only computes spontaneous activity.
+- A basic spiking neuron model - Done, LIF without synapses.
+- Populations of neurons - Done.
+- Connections - Not yet implemented
+- Network level simulations - Semi implemented. Only computes spontaneous activity.
 
 Long term goals
 ===============
 
 (Not necessarily in the listed order)
 
-1) Synaptic plasticity
-2) Complex neuronal dynamics
+- Synaptic plasticity
+- Complex neuronal dynamics
     
 
 Download and Installation
