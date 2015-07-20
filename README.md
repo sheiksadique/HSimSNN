@@ -15,25 +15,25 @@ Status
 Goals
 =====
 
-    -- Event based simulation.
-    
-    Implementation goals
-    --------------------
+-- Event based simulation.
 
-        (In the listed order)
-        
-        1) A basic spiking neuron model - Done, LIF without synapses.
-        2) Populations of neurons - Done.
-        3) Connections - Not yet implemented
-        4) Network level simulations - Semi implemented. Only computes spontaneous activity.
+Implementation goals
+--------------------
+
+(In the listed order)
+
+1) A basic spiking neuron model - Done, LIF without synapses.
+2) Populations of neurons - Done.
+3) Connections - Not yet implemented
+4) Network level simulations - Semi implemented. Only computes spontaneous activity.
 
 Long term goals
 ===============
 
-    (Not necessarily in the listed order)
+(Not necessarily in the listed order)
 
-    1) Synaptic plasticity
-    2) Complex neuronal dynamics
+1) Synaptic plasticity
+2) Complex neuronal dynamics
     
 
 Download and Installation
