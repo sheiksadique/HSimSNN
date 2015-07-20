@@ -8,6 +8,7 @@ Status
 (WORK IN PROGRESS)
 
 - This project is very much in its infancy and doesn't do much yet.
+- Currently produces spontaneous spiking activity.
 - Basic data types are defined. Functionality still missing.
 
 
@@ -52,4 +53,16 @@ For documentation
 $ cd HSimSNN
 $ cabal haddock --executables
 $ <yourfavourate_browser> ./dist/doc/html/HSimSNN/index.html
+
 ```
+
+Examples
+========
+
+You can try some example scripts that demonstrate the use of the library.
+
+
+```
+$ runhaskell examples/basics.hs
+```
+
