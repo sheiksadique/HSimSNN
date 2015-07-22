@@ -93,7 +93,7 @@ passThroughNetwork' spktrn tsim = do
 
 
 -- | reset 'n'th neuron in a Network at time t.
-resetNeuronNinNet:: Network -> Int -> Double -> Network
+resetNeuronNinNet :: Network -> Int -> Double -> Network
 resetNeuronNinNet network n t= newnetwork
         where
             updtpop = resetNeuronOfPop (population network) (Just n) t
@@ -108,4 +108,13 @@ resetNeuronNinNet' n t = do
     let newnetwork = Network updtpop (connections network)
     put (newnetwork, spk)
     return spk
-            
+
+
+-- | Apply a presynaptic spike to a neuron at time t
+applyPreSynapticSpike :: (Int, Double) -> SynInfo -> State NetworkState NetworkValue
+applyPreSynapticSpike spk syninfo = do
+    (Network pop conn, spktrn) <- get
+    let updtpop = applyPreSynapticSpikeToPop spk syninfo pop
+    let newnetwork = Network updtpop conn
+    put (newnetwork, spktrn)
+    return spktrn
