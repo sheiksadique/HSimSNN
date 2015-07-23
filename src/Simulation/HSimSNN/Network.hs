@@ -15,6 +15,10 @@ data Network = Network {population:: Population, connections:: Connections}
                deriving Show
 
 
+-- | value of network state
+type NetworkValue = SpikeTrain
+-- | network state
+type NetworkState = (Network, SpikeTrain)
 
 -- | Pass a set of spikes through a network and get the network state and spikes
 --
@@ -38,32 +42,8 @@ data Network = Network {population:: Population, connections:: Connections}
 --      - Or when time is larger than some limit
 --
 -- - Return the final 'SpikeTrain' and 'Network'
-passThroughNetwork:: SpikeTrain -> Network -> Double -> (SpikeTrain, Network)
--- When there is no input
-passThroughNetwork EmptySpikeTrain network tsim 
-    | (i==Nothing) = (EmptySpikeTrain, network) -- no spontanious spikes 
-    | (nextspktm>At tsim) = (EmptySpikeTrain, network)-- next spike time after tsim
-    | otherwise = (outspk, newnetwork2) -- spont activity
-    where
-        -- - Check for the smallest 'timeOfNextSpike' spike in the 'population'
-        i = firstSpikingNeuron (population network)
-        indx = fromJust i
-        nextspktm = nextSpikeTime $ ((neurons.population) network)!! indx
-        newnetwork = resetNeuronNinNet network indx (getTime nextspktm)
-        (spktrn,newnetwork2) = passThroughNetwork EmptySpikeTrain newnetwork tsim
-        outspk = concST (SpikeTrain $V.fromList [(indx,getTime nextspktm)]) spktrn
--- When there is input
-passThroughNetwork spktrn network tsim = (SpikeTrain (V.fromList [(100,0.3)]), network) -- dummy for now
-
--- | value of network state
-type NetworkValue = SpikeTrain
--- | network state
-type NetworkState = (Network, SpikeTrain)
-
-
--- | State monad based implementation of the function passThroughNetwork
-passThroughNetwork' :: SpikeTrain -> Double -> State NetworkState NetworkValue
-passThroughNetwork' EmptySpikeTrain tsim = do
+passThroughNetwork :: SpikeTrain -> Double -> State NetworkState NetworkValue
+passThroughNetwork EmptySpikeTrain tsim = do
     (network, spkout) <- get
     let i = firstSpikingNeuron (population network)
     if (i==Nothing) 
@@ -75,39 +55,31 @@ passThroughNetwork' EmptySpikeTrain tsim = do
             then return spkout-- next spike time after tsim 
         else do
             let newspk = SpikeTrain $V.fromList [(indx,getTime nextspktm)]
-            resetNeuronNinNet' indx (getTime nextspktm)
+            resetNeuronNinNet indx (getTime nextspktm)
             (newnet,_) <- get
             put ( newnet, 
                   concST spkout newspk )
-            passThroughNetwork' EmptySpikeTrain tsim
+            passThroughNetwork EmptySpikeTrain tsim
             
 -- applies a SpikeTrain to the network
-passThroughNetwork' (SpikeTrain spktrn) tsim = do
+passThroughNetwork (SpikeTrain spktrn) tsim = do
     let (indx,t) = V.head spktrn
     let restspk = V.tail spktrn
-    passThroughNetwork' EmptySpikeTrain t
+    passThroughNetwork EmptySpikeTrain t
     applyPreSynapticSpike (indx,t) syninfo
     if (V.length restspk == 0) then
-        passThroughNetwork' EmptySpikeTrain tsim
+        passThroughNetwork EmptySpikeTrain tsim
     else
-        passThroughNetwork' (SpikeTrain restspk) tsim
-    --(network, spkout) <- get
-    --return spkout
+        passThroughNetwork (SpikeTrain restspk) tsim
     where
-        syninfo = SynInfo 10.0 "excitatory"
+        syninfo = SynInfo 10.0 "excitatory" --TODO: hardcoding synaptic weights
 
 
--- | reset 'n'th neuron in a Network at time t.
-resetNeuronNinNet :: Network -> Int -> Double -> Network
-resetNeuronNinNet network n t= newnetwork
-        where
-            updtpop = resetNeuronOfPop (population network) (Just n) t
-            newnetwork = Network updtpop (connections network)
 
 
 -- | State based resetNeuronNinNet
-resetNeuronNinNet' :: Int -> Double -> State NetworkState NetworkValue
-resetNeuronNinNet' n t = do
+resetNeuronNinNet :: Int -> Double -> State NetworkState NetworkValue
+resetNeuronNinNet n t = do
     (network, spk) <- get
     let updtpop = resetNeuronOfPop (population network) (Just n) t
     let newnetwork = Network updtpop (connections network)

@@ -9,7 +9,8 @@ Status
 
 - This project is very much in its infancy.
 - Basic data types are defined.
-- Currently the network can spit spontaneous activity of individual disconnected neurons.
+- Currently a spike list can be applied to the network to readout its spiking activity, including any spontaneous spikes from it.
+- Connectivity missing
 
 
 Goals
@@ -25,7 +26,7 @@ Implementation goals
 - A basic spiking neuron model - Done, LIF without synapses.
 - Populations of neurons - Done.
 - Connections - Not yet implemented
-- Network level simulations - Semi implemented. Only computes spontaneous activity.
+- Network level simulations - Done
 
 Long term goals
 ===============
