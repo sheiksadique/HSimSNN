@@ -81,15 +81,20 @@ passThroughNetwork' EmptySpikeTrain tsim = do
                   concST spkout newspk )
             passThroughNetwork' EmptySpikeTrain tsim
             
-
--- dummy function doesn't do anything for now
-passThroughNetwork' spktrn tsim = do
-    (network, spkout) <- get
-    put (network, resspktrn)
-    return resspktrn
+-- applies a SpikeTrain to the network
+passThroughNetwork' (SpikeTrain spktrn) tsim = do
+    let (indx,t) = V.head spktrn
+    let restspk = V.tail spktrn
+    passThroughNetwork' EmptySpikeTrain t
+    applyPreSynapticSpike (indx,t) syninfo
+    if (V.length restspk == 0) then
+        passThroughNetwork' EmptySpikeTrain tsim
+    else
+        passThroughNetwork' (SpikeTrain restspk) tsim
+    --(network, spkout) <- get
+    --return spkout
     where
-        resspktrn = SpikeTrain (V.fromList [(100,0.3)])
-    
+        syninfo = SynInfo 10.0 "excitatory"
 
 
 -- | reset 'n'th neuron in a Network at time t.

@@ -92,6 +92,6 @@ applySynapticSpikeToNeuron :: SynInfo -> Double -> Neuron -> Neuron
 applySynapticSpikeToNeuron (SynInfo w typ) spktm neuron = Neuron newstate spktm
     where
         Neuron curstate _ = evaluateNeuronStateAtt neuron spktm
-        newstate = V.fromList [(V.head) newstate + w] V.++ ((V.tail) newstate)
+        newstate = V.fromList [(V.head) curstate + w] V.++ ((V.tail) curstate)
 
 
