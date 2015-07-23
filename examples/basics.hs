@@ -7,17 +7,20 @@ import qualified Data.Vector.Unboxed as V
 import Control.Monad.State
 
 main = do
-    -- Process a list of spikes through a network (not yet implemented)
-    --print $ fst $passThroughNetwork spktrn network 20.0
-    print $ evalState (passThroughNetwork' spktrn 20.0) (network, EmptySpikeTrain)
-
     -- Get spontaneous activity till time t
-    --print $passThroughNetwork EmptySpikeTrain network 20.0
-    print $ evalState (passThroughNetwork' EmptySpikeTrain 20.0) (network, EmptySpikeTrain) -- state monad based function
+    print $ evalState (passThroughNetwork EmptySpikeTrain 20.0) (network, EmptySpikeTrain)
+
+    -- Process a list of spikes through a network
+    print $ evalState (passThroughNetwork spktrn 20.0) (network, EmptySpikeTrain)
+
         where
-            mypop = initPop [[x] | x<-[0.0,0.1..2.0]] -- Initialize a population of neurons with different states
-            conn = Connections mypop [] -- Define an empty connection
-            network = Network mypop conn -- Define a network with the above defined populatoin and connectivity
-            spktrn = SpikeTrain $V.zip (V.fromList [0]) (V.fromList [10.0])
+            -- Initialize a population of neurons with different states
+            mypop = initPop [[x] | x<-[0.0,0.1..2.0]] 
+            -- Define an empty connection
+            conn = Connections mypop [] 
+            -- Define a network with the above defined populatoin and connectivity
+            network = Network mypop conn 
+            -- Define an input spike train
+            spktrn = SpikeTrain $V.zip (V.fromList [0..20]) (V.fromList [0.1,0.2..2.1])
     
 

@@ -39,3 +39,11 @@ resetNeuronOfPop pop (Just i) t = updtpop
                                               else 
                                                 (ns !! z)) 
                                        [0..((length ns)-1)]
+
+
+-- | convenience function to apply spike to population
+applyPreSynapticSpikeToPop :: (Int, Double) -> SynInfo -> Population -> Population
+applyPreSynapticSpikeToPop (indx, spktm) syninfo (Population p)= Population (a ++ (nl:b))
+    where
+        (a,(z:b)) = splitAt indx p
+        nl = applySynapticSpikeToNeuron syninfo spktm z
