@@ -65,12 +65,15 @@ passThroughNetwork EmptySpikeTrain tsim = do
 passThroughNetwork (SpikeTrain spktrn) tsim = do
     let (indx,t) = V.head spktrn
     let restspk = V.tail spktrn
-    passThroughNetwork EmptySpikeTrain t
-    applyPreSynapticSpike (indx,t) syninfo
-    if (V.length restspk == 0) then
-        passThroughNetwork EmptySpikeTrain tsim
+    if (t<=tsim) then do
+        passThroughNetwork EmptySpikeTrain t
+        applyPreSynapticSpike (indx,t) syninfo
+        if (V.length restspk == 0) then
+            passThroughNetwork EmptySpikeTrain tsim
+        else
+            passThroughNetwork (SpikeTrain restspk) tsim
     else
-        passThroughNetwork (SpikeTrain restspk) tsim
+        passThroughNetwork EmptySpikeTrain tsim
     where
         syninfo = SynInfo 10.0 "excitatory" --TODO: hardcoding synaptic weights
 
