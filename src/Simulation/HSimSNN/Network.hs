@@ -59,15 +59,19 @@ passThroughNetwork EmptySpikeTrain tsim = do
             (newnet,_) <- get
             put ( newnet, 
                   concST spkout newspk )
-            passThroughNetwork EmptySpikeTrain tsim
+            passThroughNetwork newspk tsim
             
 -- applies a SpikeTrain to the network
 passThroughNetwork (SpikeTrain spktrn) tsim = do
     let (indx,t) = V.head spktrn
     let restspk = V.tail spktrn
     if (t<=tsim) then do
+        (net, _) <- get
+        --update network to before the spike arrives
         passThroughNetwork EmptySpikeTrain t
-        applyPreSynapticSpike (indx,t) syninfo
+        --update all neurons connected to this axon
+        mapM (\(ind,sinf) -> applyPreSynapticSpike (ind,t) sinf) (((syninfo.connections) net)!!indx)
+        -- process the remaining spikes
         if (V.length restspk == 0) then
             passThroughNetwork EmptySpikeTrain tsim
         else
@@ -75,7 +79,7 @@ passThroughNetwork (SpikeTrain spktrn) tsim = do
     else
         passThroughNetwork EmptySpikeTrain tsim
     where
-        syninfo = SynInfo 10.0 "excitatory" --TODO: hardcoding synaptic weights
+        sinf = SynInfo 10.0 "excitatory" --TODO: hardcoding synaptic weights
 
 
 

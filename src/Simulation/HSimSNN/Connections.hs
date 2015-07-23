@@ -11,7 +11,7 @@ import Simulation.HSimSNN.Neuron
 --
 -- * The connections are essentially a matrix from source to destination neurons.
 --
--- * The index of the top level list of syninfo corresponds to the index of source neurons - (0,N).
+-- * The index of the top level list of syninfo corresponds to the index of source neurons - (0,N). Therefore, it is expected to have the same length as pop.
 --
 -- * The first int in the tuple is the index of destination neurons - (0..N).
 --
