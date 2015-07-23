@@ -78,8 +78,6 @@ passThroughNetwork (SpikeTrain spktrn) tsim = do
             passThroughNetwork (SpikeTrain restspk) tsim
     else
         passThroughNetwork EmptySpikeTrain tsim
-    where
-        sinf = SynInfo 10.0 "excitatory" --TODO: hardcoding synaptic weights
 
 
 

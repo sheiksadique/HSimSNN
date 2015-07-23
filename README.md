@@ -5,13 +5,9 @@ Haskell based simulator for spiking neural networks
 Status
 ======
 
-(WORK IN PROGRESS)
+HSimSNN is fully functional spiking neural network simulator.
 
-- This project is very much in its infancy.
-- Basic data types are defined.
-- Currently a spike list can be applied to the network to readout its spiking activity, including any spontaneous spikes from it.
-- Connectivity missing
-
+- Basic networks of LIF neurons can be implemented.
 
 Goals
 =====
@@ -26,16 +22,18 @@ Implementation goals
 
 (In the listed order)
 
-- A basic spiking neuron model - Done, LIF without synapses.
+- A basic spiking neuron model - Done.
 - Populations of neurons - Done.
-- Connections - Not yet implemented
+- Connections - Done.
 - Network level simulations - Done
+- User defined neuron models/dynamics.
 
 Long term goals
 ===============
 
 (Not necessarily in the listed order)
 
+- Custom neuron models
 - Synaptic plasticity
 - Complex neuronal dynamics
     
