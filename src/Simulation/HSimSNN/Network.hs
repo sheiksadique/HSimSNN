@@ -69,7 +69,7 @@ passThroughNetwork (SpikeTrain spktrn) tsim = do
         (net, _) <- get
         --update network to before the spike arrives
         passThroughNetwork EmptySpikeTrain t
-        --update all neurons connected to this axon
+        --update all neurons connected to this axon (im very proud of this line of code :D .. i know.. silly)
         mapM (\(ind,sinf) -> applyPreSynapticSpike (ind,t) sinf) (((syninfo.connections) net)!!indx)
         -- process the remaining spikes
         if (V.length restspk == 0) then
