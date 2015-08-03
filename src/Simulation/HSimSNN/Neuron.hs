@@ -56,7 +56,10 @@ aboveThreshold neuron
 -- Hardcasting threshold to 1.0 TODO: should parametrize somehow
 resetNeuron:: Neuron -> Double -> Neuron
 resetNeuron neuron t 
-                |tlastupdate neuron > t = error "Neuron has already been updated to the future" -- for debugging
+                |tlastupdate neuron > t = error $
+                                            (show t) 
+                                            ++ "Neuron has already been updated to the future" 
+                                            ++ (show $tlastupdate neuron) -- for debugging
                 |otherwise = Neuron newstate t
                 where
                     newstate = V.map (*0) $ state neuron -- neuron dynamics
@@ -81,7 +84,9 @@ evaluateNeuronStateAtt:: Neuron -> Double -> Neuron
 evaluateNeuronStateAtt neuron t 
                 |t == (tlastupdate neuron) = neuron -- The neuron has already been updated
                 |t > (tlastupdate neuron) = Neuron newstate t
-                |otherwise = error "This neuron has already been updated to the future"
+                |otherwise = error $ (show t) 
+                                     ++ "Neuron has already been updated to the future" 
+                                     ++ (show $tlastupdate neuron) -- for debugging
                 where
                     decayfact = exp ((tlastupdate neuron)-t) -- decay factor
                     newstate = V.map (*decayfact) $ state neuron -- neuron dynamics
