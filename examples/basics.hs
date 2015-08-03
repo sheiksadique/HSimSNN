@@ -5,6 +5,7 @@ import Simulation.HSimSNN
 import Data.List
 import qualified Data.Vector.Unboxed as V
 import Control.Monad.State
+import System.Random
 
 main = do
     -- Get spontaneous activity till time t
@@ -23,7 +24,11 @@ main = do
                                         [(2::Int,sinf),(10::Int,sinf)]] ++ (replicate (((subtract 2).length.neurons) mypop) []) 
             -- Define a network with the above defined populatoin and connectivity
             network = Network mypop conn 
+            -- Create a random no. generator
+            rng = mkStdGen 2
             -- Define an input spike train
-            spktrn = SpikeTrain $V.fromList [(1,0.1),(0,5.5)]
+            nindx = take 10 (randomRs (0,10) rng)
+            tindx = take 10 (randomRs (5.0,15.0) rng)
+            spktrn = SpikeTrain $V.fromList $zip nindx tindx
     
 
