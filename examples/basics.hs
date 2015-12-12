@@ -6,8 +6,6 @@ import Data.List
 import qualified Data.Vector.Unboxed as V
 import Control.Monad.State
 import System.Random
-import System.IO
-import System.Time
 import System.Process
 
 -- | Make a random connectivity matrx initialized with random weights
@@ -40,7 +38,7 @@ runsim = do
             -- Population size
             npop = 100
             -- Simulation time
-            tsim = 10000.0
+            tsim = 500.0
             -- Create a random no. generator
             rng = mkStdGen 4
             -- Initialize a population of neurons with different states
