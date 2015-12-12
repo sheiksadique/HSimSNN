@@ -15,8 +15,8 @@ mkRndAxon :: Int -> Int -> [(Int, SynInfo)]
 mkRndAxon n rnginit = zip [0..(n-1)] $map ((flip SynInfo) "exc") $randomRs (-1.0,0.6) $mkStdGen rnginit
 
 
-main = do
-        -- Get spontaneous activity till time t
+runsim = do
+        -- Get spontaneous activity till time t as sanity check
         print $ evalState (passThroughNetwork EmptySpikeTrain tsim) (network, EmptySpikeTrain)
 
         -- Save input spikes to file
@@ -40,7 +40,7 @@ main = do
             -- Population size
             npop = 100
             -- Simulation time
-            tsim = 1000.0
+            tsim = 10000.0
             -- Create a random no. generator
             rng = mkStdGen 4
             -- Initialize a population of neurons with different states
@@ -58,3 +58,4 @@ main = do
             tindx = sort $ take nspk (randomRs (5.0,tsim) rng)
             spktrn = SpikeTrain $V.fromList $zip nindx tindx
     
+main = runsim

@@ -16,6 +16,8 @@ def loadHData(fname='../exampleinput.txt'):
 def plotHData(fname='../exampleinput.txt'):
     data = loadHData(fname)
     pylab.plot(data[:,1], data[:,0], '.')
+    pylab.xlabel('t (ms)')
+    pylab.ylabel('Neuron idx')
 
 
 
