@@ -44,3 +44,24 @@ instance Ord NextSpikeTime where
 getTime::NextSpikeTime -> Double
 getTime (At t) = t
 getTime Never = error "There is no spike"
+
+
+
+-- | Save SpikeTrain to a file
+spikeTrainToFile:: FilePath -> SpikeTrain -> IO ()
+spikeTrainToFile fname EmptySpikeTrain = writeFile fname $ show EmptySpikeTrain
+spikeTrainToFile fname (SpikeTrain st) = writeFile fname $ show st
+
+
+-- | Generate SpikeTrain from file
+spikeTrainFromFile:: FilePath -> IO SpikeTrain
+spikeTrainFromFile fname = do
+    str <- readFile fname
+    return $ spikeTrainFromString str
+
+
+-- | Generate SpikeTrain from String
+spikeTrainFromString:: String -> SpikeTrain
+spikeTrainFromString "EmptySpikeTrain" = EmptySpikeTrain
+spikeTrainFromString str = SpikeTrain $V.fromList (read str :: [(Int, Double)])
+
