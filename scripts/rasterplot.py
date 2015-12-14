@@ -6,7 +6,8 @@ def loadHData(fname='../exampleinput.txt'):
     with open(fname) as f:
         zs = f.readlines()
     for z in zs:
-        data.append([x.strip('[()]') for x in z.split(',')])
+        if z != "EmptySpikeTrain":
+            data.append([x.strip('[()]') for x in z.split(',')])
     
     data = np.array(data)
     data.flatten()

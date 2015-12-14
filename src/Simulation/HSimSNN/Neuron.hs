@@ -30,7 +30,7 @@ instance Show Neuron where
     show (Neuron st tl) = "Neuron (" ++ (show $(V.toList) st) ++ " @ " ++ (show tl) ++ ")"
 
 -- | Initializes a neuron with a given state at time 0
-initNeuron st = Neuron (V.fromList st) 0 -- TODO: Hardcoding Never incorrect
+initNeuron st = Neuron (V.fromList st) 0
 
 -- | Returns the membrane potential of a neuron
 vmem:: Neuron -> Double
@@ -62,8 +62,9 @@ resetNeuron neuron t
                                             ++ (show $tlastupdate neuron) -- for debugging
                 |otherwise = Neuron newstate t
                 where
-                    newstate = V.map (*0) $ state neuron -- neuron dynamics
-                  
+                    tlstspk:y = V.toList $ V.tail $ state neuron -- time of last spike
+                    -- neuron dynamics
+                    newstate = V.fromList ([0,t] ++ y)
 
 -- | Evaluate the next possible spike time of a neuron given its state at time t
 -- 
@@ -88,15 +89,23 @@ evaluateNeuronStateAtt neuron t
                                      ++ "Neuron has already been updated to the future" 
                                      ++ (show $tlastupdate neuron) -- for debugging
                 where
-                    decayfact = exp ((tlastupdate neuron)-t) -- decay factor
-                    newstate = V.map (*decayfact) $ state neuron -- neuron dynamics
+                    decayfact = exp (((tlastupdate neuron)-t)/10.0) -- decay factor
+                    v:y = V.toList $ state neuron
+                    newstate = V.fromList ([v*decayfact]++y)  -- neuron dynamics
 
 
 -- | Apply a presynaptic spike to a neuron at time t
 applySynapticSpikeToNeuron :: SynInfo -> Double -> Neuron -> Neuron
-applySynapticSpikeToNeuron (SynInfo w typ) spktm neuron = Neuron newstate spktm
-    where
-        Neuron curstate _ = evaluateNeuronStateAtt neuron spktm
-        newstate = V.fromList [(V.head) curstate + w] V.++ ((V.tail) curstate)
+applySynapticSpikeToNeuron (SynInfo w typ) spktm neuron
+                |isRefractoryAtt neuron spktm = Neuron curstate spktm
+                |otherwise = Neuron newstate spktm
+                where
+                    Neuron curstate _ = evaluateNeuronStateAtt neuron spktm
+                    newstate = V.fromList [(V.head) curstate + w] V.++ ((V.tail) curstate)
 
-
+-- | Check if a neuron is still refractory
+isRefractoryAtt:: Neuron -> Double -> Bool
+isRefractoryAtt (Neuron oldstate tlastupdate) t
+                |(t-tlastupdate) > 1.0  = False -- Neuron has not been modified within refractory time window
+                |(t-(V.head (V.tail oldstate))) > 1.0 = False -- last spike time was before refractory time window
+                |otherwise = True
