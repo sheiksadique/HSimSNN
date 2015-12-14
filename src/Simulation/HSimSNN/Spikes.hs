@@ -2,7 +2,7 @@
 --
 module Simulation.HSimSNN.Spikes where
 
-import qualified Data.Vector.Unboxed as V
+import qualified Data.Vector as V
 
 
 -- | Spike is a tuple of the form (index, time)

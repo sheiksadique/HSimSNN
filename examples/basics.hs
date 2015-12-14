@@ -3,7 +3,7 @@ module Main where
 
 import Simulation.HSimSNN
 import Data.List
-import qualified Data.Vector.Unboxed as V
+import qualified Data.Vector as V
 import Control.Monad.State
 import System.Random
 import System.Process

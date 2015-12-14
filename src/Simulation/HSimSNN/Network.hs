@@ -7,7 +7,7 @@ import Simulation.HSimSNN.Spikes
 import Simulation.HSimSNN.Neuron
 
 import Data.Maybe
-import qualified Data.Vector.Unboxed as V
+import qualified Data.Vector as V
 import Control.Monad.State
 
 -- | Network data type encapsulates a network of neurons by holding a Population and its Connections

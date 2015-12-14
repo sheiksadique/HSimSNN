@@ -10,7 +10,7 @@
 --
 module Simulation.HSimSNN.Neuron where
 
-import qualified Data.Vector.Unboxed as V
+import qualified Data.Vector as V
 import qualified Simulation.HSimSNN.Spikes as SPK
 
 -- | Data container for synaptic information related to a connection
