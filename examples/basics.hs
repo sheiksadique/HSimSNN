@@ -54,8 +54,9 @@ runsim = do
             network = Network mypop conn 
             -- Define an input spike train with firing rate f
             f = 100.0
-            nspk = round (f*tsim/1000.0*(fromIntegral npop))
-            nindx = take nspk (randomRs (0,(npop-1)) rng)
+            ninp = 10
+            nspk = round (f*tsim/1000.0*(fromIntegral ninp))
+            nindx = take nspk (randomRs (0,(ninp-1)) rng)
             tindx = sort $ take nspk (randomRs (5.0,tsim) rng)
             spktrn = SpikeTrain $V.fromList $zip nindx tindx
     

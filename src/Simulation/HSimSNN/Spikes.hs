@@ -4,6 +4,17 @@ module Simulation.HSimSNN.Spikes where
 
 import qualified Data.Vector.Unboxed as V
 
+
+-- | Spike is a tuple of the form (index, time)
+data Spike = Spike (Int, Double)
+instance Show Spike where
+    show (Spike (x,y)) = show (x,y)
+instance Eq Spike where
+    (==) (Spike (_,t1)) (Spike (_,t2)) = (t1==t2)
+instance Ord Spike where
+    (<=) (Spike (_,t1)) (Spike (_,t2)) = (t1<=t2)
+
+
 -- | SpikeTrain data type consists of a vector of tuples of the form (index, time)
 -- You can initialize a SpikeTrain as follows
 --
