@@ -5,19 +5,19 @@ import Simulation.HSimSNN.Population
 import Simulation.HSimSNN.Connections
 import Simulation.HSimSNN.Spikes
 import Simulation.HSimSNN.Neuron
-
 import Data.Maybe
 import qualified Data.Vector as V
 import Control.Monad.State
+
 
 -- | Network data type encapsulates a network of neurons by holding a Population and its Connections
 data Network = Network {population:: Population, connections:: Connections}
                deriving Show
 
 
--- | value of network state
+-- | Value of network state
 type NetworkValue = SpikeTrain
--- | network state
+-- | Network state
 type NetworkState = (Network, SpikeTrain)
 
 -- | Pass a set of spikes through a network and get the network state and spikes
@@ -54,16 +54,17 @@ passThroughNetwork EmptySpikeTrain tsim = do
         if (nextspktm>At tsim) 
             then return spkout-- next spike time after tsim 
         else do
-            let newspk = SpikeTrain $V.fromList [(indx,getTime nextspktm)]
+            let newspk = SpikeTrain $V.fromList [Spike (indx,getTime nextspktm)]
             resetNeuronNinNet indx (getTime nextspktm)
             (newnet,_) <- get
             put ( newnet, 
                   concST spkout newspk )
             passThroughNetwork newspk tsim
-            
+
+
 -- applies a SpikeTrain to the network
 passThroughNetwork (SpikeTrain spktrn) tsim = do
-    let (indx,t) = V.head spktrn
+    let Spike (indx,t) = V.head spktrn
     let restspk = V.tail spktrn
     if (t<=tsim) then do
         (net, _) <- get
@@ -78,8 +79,6 @@ passThroughNetwork (SpikeTrain spktrn) tsim = do
             passThroughNetwork (SpikeTrain restspk) tsim
     else
         passThroughNetwork EmptySpikeTrain tsim
-
-
 
 
 -- | State based resetNeuronNinNet

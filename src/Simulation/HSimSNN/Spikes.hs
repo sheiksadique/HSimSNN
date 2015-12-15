@@ -15,19 +15,19 @@ instance Ord Spike where
     (<=) (Spike (_,t1)) (Spike (_,t2)) = (t1<=t2)
 
 
--- | SpikeTrain data type consists of a vector of tuples of the form (index, time)
+-- | SpikeTrain data type consists of a vector of Spike
 -- You can initialize a SpikeTrain as follows
 --
 -- @
 --      > import qualified Data.Vector.Unboxed as V
 --      > let indx = V.fromList [0..20]
 --      > let spktm = V.fromList [5.0,5.1..7]
---      > let spktrain = SpikeTrain $ V.zip indx spktm
+--      > let spktrain = SpikeTrain $ V.map Spike (V.zip indx spktm)
 -- @
 --
 -- Note 1 - the index is Int and not Double
 -- Note 2 - TODO: SpikeTrain (V.fromList []) != EmptySpikeTrain although conceptually it is.
-data SpikeTrain = SpikeTrain (V.Vector (Int, Double)) | EmptySpikeTrain
+data SpikeTrain = SpikeTrain (V.Vector Spike) | EmptySpikeTrain
                   deriving (Show, Eq)
 
 
@@ -74,5 +74,5 @@ spikeTrainFromFile fname = do
 -- | Generate SpikeTrain from String
 spikeTrainFromString:: String -> SpikeTrain
 spikeTrainFromString "EmptySpikeTrain" = EmptySpikeTrain
-spikeTrainFromString str = SpikeTrain $V.fromList (read str :: [(Int, Double)])
+spikeTrainFromString str = SpikeTrain $V.fromList $map Spike (read str :: [(Int, Double)])
 
