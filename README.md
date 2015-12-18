@@ -33,6 +33,7 @@ Long term goals
 
 (Not necessarily in the listed order)
 
+- Synaptic dynamics
 - Custom neuron models
 - Synaptic plasticity
 - Complex neuronal dynamics
@@ -68,3 +69,19 @@ You can try some example scripts that demonstrate the use of the library.
 $ runhaskell examples/basics.hs
 ```
 
+The data is saved to txt files that are then used to generate plots in python
+using matplotlib
+
+
+
+Change log
+==========
+
+(0.2.0.0)
+---------
+
+- Added transmission delays to spikes. This ensure that the simulation doesn't
+explode and progresses over time (esp for recurrent netwoks)
+
+- Added refractory period to spikes. Once agian as a measure to ensure the
+  network activity doesn't explode.

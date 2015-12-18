@@ -89,7 +89,8 @@ evaluateNeuronStateAtt neuron t
                                      ++ "Neuron has already been updated to the future" 
                                      ++ (show $tlastupdate neuron) -- for debugging
                 where
-                    decayfact = exp (((tlastupdate neuron)-t)/10.0) -- decay factor
+                    taum = 10.0
+                    decayfact = exp (((tlastupdate neuron)-t)/taum) -- decay factor
                     v:y = V.toList $ state neuron
                     newstate = V.fromList ([v*decayfact]++y)  -- neuron dynamics
 
@@ -106,6 +107,8 @@ applySynapticSpikeToNeuron (SynInfo w typ) spktm neuron
 -- | Check if a neuron is still refractory
 isRefractoryAtt:: Neuron -> Double -> Bool
 isRefractoryAtt (Neuron oldstate tlastupdate) t
-                |(t-tlastupdate) > 1.0  = False -- Neuron has not been modified within refractory time window
-                |(t-(V.head (V.tail oldstate))) > 1.0 = False -- last spike time was before refractory time window
+                |(t-tlastupdate) > tref  = False -- Neuron has not been modified within refractory time window
+                |(t-(V.head (V.tail oldstate))) > tref = False -- last spike time was before refractory time window
                 |otherwise = True
+                where
+                    tref = 0.5

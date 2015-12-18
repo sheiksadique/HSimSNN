@@ -1,7 +1,7 @@
 import numpy as np
 import pylab
 
-def loadHData(fname='../exampleinput.txt'):
+def loadHData(fname='../input.txt'):
     data = []
     with open(fname) as f:
         zs = f.readlines()
@@ -14,7 +14,7 @@ def loadHData(fname='../exampleinput.txt'):
     data = data.astype('float').reshape((-1,2))
     return data
 
-def plotHData(fname='../exampleinput.txt'):
+def plotHData(fname='../input.txt'):
     data = loadHData(fname)
     pylab.plot(data[:,1], data[:,0], '.')
     pylab.xlabel('t (ms)')
@@ -23,8 +23,8 @@ def plotHData(fname='../exampleinput.txt'):
 
 
 if __name__=='__main__':
-    plotHData(fname='exampleinput.txt')
-    plotHData(fname='exampleoutput.txt')
+    plotHData(fname='input.txt')
+    plotHData(fname='output.txt')
     pylab.legend(['Input','Output'])
     pylab.show()
 
