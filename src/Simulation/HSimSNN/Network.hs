@@ -63,7 +63,7 @@ passThroughNetwork EmptySpikeTrain tsim = do
             (newnet,_) <- get
             put ( newnet, 
                   concST spkout newspk )
-            passThroughNetwork (SpikeTrain $V.fromList [Spike (indx,tn+1.0)]) tsim >>= return 
+            passThroughNetwork (SpikeTrain $V.fromList [Spike (indx,tn+1.0)]) tsim
     where
         delay= 1.0 -- Spike transmission delay hardcoded
 
@@ -86,15 +86,15 @@ passThroughNetwork (SpikeTrain spktrn) tsim = do
         if isEmptySpikeTrain dspktrn then
             --passThroughNetwork EmptySpikeTrain tsim >>= return
             if isEmptySpikeTrain (SpikeTrain restspk) then
-                passThroughNetwork EmptySpikeTrain tsim >>= return
+                passThroughNetwork EmptySpikeTrain tsim
             else
-                passThroughNetwork (SpikeTrain restspk) tsim >>= return
+                passThroughNetwork (SpikeTrain restspk) tsim
         else
             if isEmptySpikeTrain (SpikeTrain restspk) then
-                passThroughNetwork dspktrn tsim >>= return
+                passThroughNetwork dspktrn tsim -- >>= return
             else
                 --SpikeTrian insert dspktrn restspk
-                passThroughNetwork (mergeST dspktrn (SpikeTrain restspk)) tsim >>= return
+                passThroughNetwork (mergeST dspktrn (SpikeTrain restspk)) tsim
     else do
         -- Input spikes arrive after simulation time so they don't matter
         dspktrn <- passThroughNetwork EmptySpikeTrain tsim

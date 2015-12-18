@@ -42,8 +42,8 @@ runsim = do
         npop = 500 -- Total population size
         ninp = 50 -- No. of neurons assigned only for input
         -- Simulation time
-        tsim = 30.0
-        tinp = 10.0 -- input time
+        tsim = 50.0 -- Simulation time (ms)
+        tinp = 45.0 -- input time (ms)
         -- Create a random no. generator
         rng = mkStdGen 6
         -- Initialize a population of neurons with different states
