@@ -1,19 +1,26 @@
+{-# LANGUAGE DeriveGeneric #-}
 -- | Module for handling spikes
 --
 module Simulation.HSimSNN.Spikes where
 
 import qualified Data.Vector as V
+import GHC.Generics
+import Control.DeepSeq
 
 
 -- | Spike is a tuple of the form (index, time)
-data Spike = Spike (Int, Double)
+data Spike = Spike (Int, Double) deriving Generic
+
 instance Show Spike where
     show (Spike (x,y)) = show (x,y)
+
 instance Eq Spike where
     (==) (Spike (_,t1)) (Spike (_,t2)) = (t1==t2)
+
 instance Ord Spike where
     (<=) (Spike (_,t1)) (Spike (_,t2)) = (t1<=t2)
 
+instance NFData Spike
 
 -- | SpikeTrain data type consists of a vector of Spike
 -- You can initialize a SpikeTrain as follows
@@ -28,7 +35,9 @@ instance Ord Spike where
 -- Note 1 - the index is Int and not Double
 -- Note 2 - TODO: SpikeTrain (V.fromList []) != EmptySpikeTrain although conceptually it is.
 data SpikeTrain = SpikeTrain (V.Vector Spike) | EmptySpikeTrain
-                  deriving (Show, Eq)
+                  deriving (Show, Eq, Generic)
+
+instance NFData SpikeTrain where
 
 -- | is equal to EmptySpikeTrain
 isEmptySpikeTrain :: SpikeTrain -> Bool
