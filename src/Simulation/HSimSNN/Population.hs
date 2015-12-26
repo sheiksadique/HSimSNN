@@ -6,7 +6,7 @@ import Simulation.HSimSNN.Spikes
 import Data.List
 
 -- | A populatoin of 'Neuron's is simply a list of 'Neuron's
-data Population = Population {neurons::![Neuron]}
+data Population = Population {neurons:: ![Neuron]}
                   deriving Show
 
 -- | Initialize a population of neurons with a list of initial states
