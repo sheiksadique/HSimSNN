@@ -20,13 +20,11 @@ spontaneousActivity network = do
     -- Process a list of spikes through a network
     evalState (passThroughNetwork spktrn tsim) (network, EmptySpikeTrain)
 
-  where spktrn = SpikeTrain $ V.fromList $ map Spike $ zip nindx tindx
-        tsim = 50.0 -- Simulation time (ms)
-
 network1 = Network mypop conn 
-    where
-        -- Population size
-npop = 200 -- Total population size
+
+spktrn = SpikeTrain $ V.fromList $ map Spike $ zip nindx tindx
+tsim = 50.0 -- Simulation time (ms)
+npop = 240 -- Total population size
 ninp = 50 -- No. of neurons assigned only for input
 -- Simulation time
 tinp = 45.0 -- input time (ms)
