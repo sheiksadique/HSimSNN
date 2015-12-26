@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedLists #-}
+
 -- | Neuron module encapsulates behavior of a 'Neuron'
 --
 -- Some considerations for event driven simulation of SNN
@@ -11,60 +13,66 @@
 module Simulation.HSimSNN.Neuron where
 
 import qualified Data.Vector as V
+import qualified Data.Vector.Generic.Mutable as VM
 import qualified Simulation.HSimSNN.Spikes as SPK
 
 -- | Data container for synaptic information related to a connection
-data SynInfo = SynInfo {weight::Double, syntype::String}
-               deriving Show
+-- Shouldn't syntype be a sumtype?
 
+data SynInfo = SynInfo
+    { weight :: !Double
+    , syntype :: !String
+    } deriving (Show)
 
 -- | Neuron threshold
 threshold = 1.0
 
-
 -- | Neuron is defined by its state and time at which its state was last evaluated
 -- The state of a neuron is defined as list of doubles
-data Neuron = Neuron {state::V.Vector Double, tlastupdate::Double}
+-- Try unboxed Vector for better performance
+
+data Neuron = Neuron
+    { state :: !(V.Vector Double)
+    , tLastUpdate :: !Double
+    }
 -- | String representation for Neuron
 instance Show Neuron where
     show (Neuron st tl) = "Neuron (" ++ (show $(V.toList) st) ++ " @ " ++ (show tl) ++ ")"
 
 -- | Initializes a neuron with a given state at time 0
+initNeuron :: [Double] -> Neuron
 initNeuron st = Neuron (V.fromList st) 0
 
 -- | Returns the membrane potential of a neuron
+
+-- Maybe use Non-empty Vector?
 vmem:: Neuron -> Double
 vmem neuron = (V.head.state) neuron -- For now the state of a neuron is the first state variable
 
 -- The below block of functions all effect the dynamics of the neuron
 
-
-
-
-
 -- | Checks if the membrane potential of a neuron is above threshold value
+-- use a reader monad for global values?
 aboveThreshold:: Neuron -> Bool
-aboveThreshold neuron
-        | threshold > vmem neuron = False
-        | otherwise = True
-
-
+aboveThreshold neuron = vmem neuron > threshold
 
 -- | Check for threshold and reset neuron
 -- Should be called with the simulatoin time and only when the neuron spikes
 -- Perhaps this should be an internal/hidden function ?
 -- Hardcasting threshold to 1.0 TODO: should parametrize somehow
+-- See above use reader monad for parameters
 resetNeuron:: Neuron -> Double -> Neuron
 resetNeuron neuron t 
-                |tlastupdate neuron > t = error $
+                |tLastUpdate neuron > t = error $
                                             (show t) 
                                             ++ "Neuron has already been updated to the future" 
-                                            ++ (show $tlastupdate neuron) -- for debugging
+                                            ++ (show $tLastUpdate neuron) -- for debugging
                 |otherwise = Neuron newstate t
                 where
-                    tlstspk:y = V.toList $ V.tail $ state neuron -- time of last spike
+                    -- Rewrite this without lists
+                    y = V.tail $ state neuron -- time of last spike
                     -- neuron dynamics
-                    newstate = V.fromList ([0,t] ++ y)
+                    newstate = [0,t] V.++ y
 
 -- | Evaluate the next possible spike time of a neuron given its state at time t
 -- 
@@ -73,7 +81,7 @@ resetNeuron neuron t
 -- Ideally this should be something users can define and pass at the top level
 nextSpikeTime:: Neuron -> SPK.NextSpikeTime
 nextSpikeTime neuron
-    |aboveThreshold neuron = SPK.At $ tlastupdate neuron
+    |aboveThreshold neuron = SPK.At $ tLastUpdate neuron
     |otherwise = SPK.Never
     -- -- |otherwise =  SPK.At $(threshold-vmem neuron) + tlastupdate neuron 
 
@@ -83,32 +91,35 @@ nextSpikeTime neuron
 -- event occoured)
 evaluateNeuronStateAtt:: Neuron -> Double -> Neuron
 evaluateNeuronStateAtt neuron t 
-                |t == (tlastupdate neuron) = neuron -- The neuron has already been updated
-                |t > (tlastupdate neuron) = Neuron newstate t
+                |t > (tLastUpdate neuron) = Neuron newstate t
+                |t == (tLastUpdate neuron) = neuron -- The neuron has already been updated
                 |otherwise = error $ (show t) 
                                      ++ "Neuron has already been updated to the future" 
-                                     ++ (show $tlastupdate neuron) -- for debugging
+                                     ++ (show $tLastUpdate neuron) -- for debugging
                 where
                     taum = 10.0
-                    decayfact = exp (((tlastupdate neuron)-t)/taum) -- decay factor
-                    v:y = V.toList $ state neuron
-                    newstate = V.fromList ([v*decayfact]++y)  -- neuron dynamics
-
+                    decayfact = exp (((tLastUpdate neuron)-t)/taum) -- decay factor
+                    -- Rewrite this without lists
+                    newstate =
+                        V.modify
+                            (\v ->
+                                  VM.modify v (* decayfact) 0)
+                            (state neuron)
 
 -- | Apply a presynaptic spike to a neuron at time t
 applySynapticSpikeToNeuron :: SynInfo -> Double -> Neuron -> Neuron
-applySynapticSpikeToNeuron (SynInfo w typ) spktm neuron
+applySynapticSpikeToNeuron (SynInfo w _) spktm neuron
                 |isRefractoryAtt neuron spktm = Neuron curstate spktm
                 |otherwise = Neuron newstate spktm
                 where
                     Neuron curstate _ = evaluateNeuronStateAtt neuron spktm
-                    newstate = V.fromList [(V.head) curstate + w] V.++ ((V.tail) curstate)
+                    newstate = V.modify (\v -> VM.modify v (+w) 0) curstate
 
 -- | Check if a neuron is still refractory
 isRefractoryAtt:: Neuron -> Double -> Bool
 isRefractoryAtt (Neuron oldstate tlastupdate) t
                 |(t-tlastupdate) > tref  = False -- Neuron has not been modified within refractory time window
-                |(t-(V.head (V.tail oldstate))) > tref = False -- last spike time was before refractory time window
+                |(t-(oldstate V.! 1)) > tref = False -- last spike time was before refractory time window
                 |otherwise = True
                 where
                     tref = 0.5
