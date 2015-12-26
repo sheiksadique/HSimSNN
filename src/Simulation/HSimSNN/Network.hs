@@ -94,7 +94,7 @@ passThroughNetwork (SpikeTrain spktrn) tsim = do
             -- Apply first spike
             (net,_) <- get
             --update all neurons connected to this axon (im very proud of this line of code :D .. i know.. silly)
-            mapM
+            mapM_
                 (\(ind,sinf) ->
                       applyPreSynapticSpike
                           (ind, t)
