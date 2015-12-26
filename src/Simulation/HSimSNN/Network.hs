@@ -47,56 +47,78 @@ type DelayedSpikes = SpikeTrain
 
 passThroughNetwork :: SpikeTrain -> Double -> State NetworkState DelayedSpikes
 passThroughNetwork EmptySpikeTrain tsim = do
-    (network, spkout) <- get
-    let i = firstSpikingNeuron (population network) -- Check for any spikes
-    if (i==Nothing) -- No spikes
+    (network,spkout) <- get
+    let i =
+            firstSpikingNeuron
+                (population network) -- Check for any spikes
+    if (i == Nothing) -- No spikes
         then return EmptySpikeTrain
-    else do
-        let indx = fromJust i
-        let nextspktm = nextSpikeTime $ ((neurons.population) network)!! indx
-        if (nextspktm>At tsim) -- next spike time after tsim
-            then return EmptySpikeTrain 
         else do
-            let tn = getTime nextspktm
-            let newspk = SpikeTrain $V.fromList [Spike (indx,tn)]
-            resetNeuronNinNet indx tn
-            (newnet,_) <- get
-            put ( newnet, 
-                  concST spkout newspk )
-            passThroughNetwork (SpikeTrain $V.fromList [Spike (indx,tn+1.0)]) tsim
-    where
-        delay= 1.0 -- Spike transmission delay hardcoded
-
+            let indx =
+                    fromJust i
+            let nextspktm =
+                    nextSpikeTime $
+                    ((neurons . population) network) !!
+                    indx
+            if (nextspktm >
+                At tsim) -- next spike time after tsim
+                then return EmptySpikeTrain
+                else do
+                    let tn =
+                            getTime nextspktm
+                    let newspk =
+                            SpikeTrain $
+                            V.fromList
+                                [Spike (indx, tn)]
+                    resetNeuronNinNet indx tn
+                    (newnet,_) <- get
+                    put (newnet, concST spkout newspk)
+                    passThroughNetwork
+                        (SpikeTrain $
+                         V.fromList
+                             [Spike (indx, tn + 1.0)])
+                        tsim
+  where
+    delay =
+        1.0 -- Spike transmission delay hardcoded
 
 passThroughNetwork (SpikeTrain spktrn) tsim = do
-    let Spike (indx,t) = V.head spktrn -- First spike
-    if (t<=tsim) then do
-        --update network to before the spike arrives and collect any delayed
-        --spikes
-        dspktrn <- passThroughNetwork EmptySpikeTrain t -- Delayed spikes
-        
-        -- Apply first spike
-        (net, _) <- get
-        --update all neurons connected to this axon (im very proud of this line of code :D .. i know.. silly)
-        mapM (\(ind,sinf) -> applyPreSynapticSpike (ind,t) sinf) (((syninfo.connections) net)!!indx)
-        
-        -- Process reminder spikes
-        let restspk = V.tail spktrn -- reminder of spikes
-
-        if isEmptySpikeTrain dspktrn then
-            --passThroughNetwork EmptySpikeTrain tsim >>= return
-            if isEmptySpikeTrain (SpikeTrain restspk) then
+    let Spike (indx,t) =
+            V.head spktrn -- First spike
+    if (t <= tsim)
+        then do
+            --update network to before the spike arrives and collect any delayed
+            --spikes
+            dspktrn <-
+                passThroughNetwork EmptySpikeTrain t -- Delayed spikes
+            -- Apply first spike
+            (net,_) <- get
+            --update all neurons connected to this axon (im very proud of this line of code :D .. i know.. silly)
+            mapM
+                (\(ind,sinf) ->
+                      applyPreSynapticSpike
+                          (ind, t)
+                          sinf)
+                (((syninfo . connections) net) !!
+                 indx)
+            -- Process reminder spikes
+            let restspk =
+                    V.tail spktrn -- reminder of spikes
+            if isEmptySpikeTrain dspktrn
+                then if isEmptySpikeTrain
+                            (SpikeTrain restspk)
+                         then passThroughNetwork EmptySpikeTrain tsim
+                         else passThroughNetwork
+                                  (SpikeTrain restspk)
+                                  tsim
+                else if isEmptySpikeTrain
+                            (SpikeTrain restspk)
+                         then passThroughNetwork dspktrn tsim -- >>= return
+                         else passThroughNetwork
+                                  (mergeST dspktrn (SpikeTrain restspk))
+                                  tsim
+        else do
+            -- Input spikes arrive after simulation time so they don't matter
+            dspktrn <-
                 passThroughNetwork EmptySpikeTrain tsim
-            else
-                passThroughNetwork (SpikeTrain restspk) tsim
-        else
-            if isEmptySpikeTrain (SpikeTrain restspk) then
-                passThroughNetwork dspktrn tsim -- >>= return
-            else
-                --SpikeTrian insert dspktrn restspk
-                passThroughNetwork (mergeST dspktrn (SpikeTrain restspk)) tsim
-    else do
-        -- Input spikes arrive after simulation time so they don't matter
-        dspktrn <- passThroughNetwork EmptySpikeTrain tsim
-        return (mergeST dspktrn (SpikeTrain spktrn))
-
+            return (mergeST dspktrn (SpikeTrain spktrn))
