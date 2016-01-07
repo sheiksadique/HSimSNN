@@ -12,7 +12,7 @@
 --
 module Simulation.HSimSNN.Neuron where
 
-import qualified Data.Vector as V
+import qualified Data.Vector.Unboxed as V
 import qualified Data.Vector.Generic.Mutable as VM
 import qualified Simulation.HSimSNN.Spikes as SPK
 
@@ -20,7 +20,7 @@ import qualified Simulation.HSimSNN.Spikes as SPK
 -- Shouldn't syntype be a sumtype?
 
 data SynInfo = SynInfo
-    { weight :: !Double
+    { weight :: {-# UNPACK #-} !Double
     , syntype :: !String
     } deriving (Show)
 
@@ -33,7 +33,7 @@ threshold = 1.0
 
 data Neuron = Neuron
     { state :: !(V.Vector Double)
-    , tLastUpdate :: !Double
+    , tLastUpdate :: {-# UNPACK #-} !Double
     }
 -- | String representation for Neuron
 instance Show Neuron where

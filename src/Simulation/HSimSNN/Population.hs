@@ -26,7 +26,7 @@ evaluatePopStateAtt (Population ns) t = Population $ V.map (flip evaluateNeuronS
 firstSpikingNeuron :: Population -> Maybe Int
 firstSpikingNeuron (Population ns)
   | (nextSpikeTime (ns V.! minimumSpikeIndx)) == Never = Nothing
-  | otherwise = Just minimumSpikeIndx
+  | otherwise = Just $! minimumSpikeIndx
   where
     minimumSpikeIndx =
         V.minIndexBy (comparing nextSpikeTime) ns

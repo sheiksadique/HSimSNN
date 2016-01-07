@@ -9,7 +9,7 @@ import Control.DeepSeq
 
 
 -- | Spike is a tuple of the form (index, time)
-data Spike = Spike {-# UNPACK #-} !(Int, Double) deriving Generic
+data Spike = Spike {-# UNPACK #-} !(Int, Double) deriving (Generic)
 
 instance Show Spike where
     show (Spike (x,y)) = show (x,y)
