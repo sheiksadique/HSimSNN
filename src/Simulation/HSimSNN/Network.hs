@@ -58,7 +58,7 @@ passThroughNetwork EmptySpikeTrain tsim = do
                     fromJust i
             let nextspktm =
                     nextSpikeTime $
-                    ((neurons . population) network) !!
+                    ((neurons . population) network) V.!
                     indx
             if (nextspktm >
                 At tsim) -- next spike time after tsim

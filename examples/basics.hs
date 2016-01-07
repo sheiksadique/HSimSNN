@@ -47,7 +47,7 @@ runsim = do
         -- Create a random no. generator
         rng = mkStdGen 6
         -- Initialize a population of neurons with different states
-        mypop = initPop [[x,0] | x<-(take npop (randomRs (0.0,1.0) rng))] 
+        mypop = initPop $ V.fromList [[x,0] | x<-(take npop (randomRs (0.0,1.0) rng))] 
         -- create connection matrix (the length of this list should be the same as population size)
         cm = [mkRndAxon npop ninp rinit| rinit <-[0..(npop-1)]]
         -- Define a connection
