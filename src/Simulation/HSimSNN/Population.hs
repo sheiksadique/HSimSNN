@@ -1,4 +1,3 @@
-{-# LANGUAGE ViewPatterns #-}
 -- | Population module encompasses all functions on populations
 module Simulation.HSimSNN.Population where
 
@@ -9,19 +8,18 @@ import qualified Data.Vector as V
 import qualified Data.Vector.Mutable as VM
 
 -- | A populatoin of 'Neuron's is simply a list of 'Neuron's
-data Population = Population {neurons:: !(Vector Neuron)}
-                  deriving Show
+data Population = Population
+    { neurons :: !(Vector Neuron)
+    } deriving (Show)
 
 -- | Initialize a population of neurons with a list of initial states
 initPop :: Vector [Double] -> Population
 initPop st = Population $ V.map initNeuron st
 
-
 -- | Evaluate states of a population of neurons
 -- This method should *not* ideally be called for every neuron in the global population but only only to the subpopulation that a spike event corresponds to.
 evaluatePopStateAtt:: Population -> Double -> Population
 evaluatePopStateAtt (Population ns) t = Population $ V.map (flip evaluateNeuronStateAtt t) ns
-
 
 -- | Find the index of neuron that is about to spike in a 'Population'
 firstSpikingNeuron :: Population -> Maybe Int
