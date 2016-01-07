@@ -20,7 +20,7 @@ initPop st = Population $ V.map initNeuron st
 -- | Evaluate states of a population of neurons
 -- This method should *not* ideally be called for every neuron in the global population but only only to the subpopulation that a spike event corresponds to.
 evaluatePopStateAtt:: Population -> Double -> Population
-evaluatePopStateAtt (Population neurons') t = Population $ V.map (flip evaluateNeuronStateAtt t) neurons'
+evaluatePopStateAtt (Population ns) t = Population $ V.map (flip evaluateNeuronStateAtt t) ns
 
 
 -- | Find the index of neuron that is about to spike in a 'Population'
@@ -39,26 +39,18 @@ firstSpikingNeuron pop
 
 -- | Update the neuron with index i of a pop at time t
 resetNeuronOfPop :: Population -> Maybe Int -> Double -> Population
-resetNeuronOfPop pop Nothing _ = pop
-resetNeuronOfPop pop (Just i) t =
-    let ns = neurons pop
-    in Population
-            (V.map
-                 -- TODO: Refactor these for readability
-                 (\z -> if z == i
-                           then resetNeuron (ns V.! z) t
-                           else (ns V.! z))
-                 (V.fromList
-                      [0 .. ((length ns) - 1)]))
+resetNeuronOfPop p Nothing _ = p
+resetNeuronOfPop (Population ns) (Just i) t =
+    Population (V.modify (\v -> VM.modify v (flip resetNeuron t) i) ns)
 
 -- | convenience function to apply spike to population
 applyPreSynapticSpikeToPop :: (Int, Double)
                            -> SynInfo
                            -> Population
                            -> Population
-applyPreSynapticSpikeToPop (indx,spktm) syninfo (Population p) =
+applyPreSynapticSpikeToPop (i,spktm) syninfo (Population ns) =
     Population
         (V.modify
              (\v ->
-                   VM.modify v (applySynapticSpikeToNeuron syninfo spktm) indx)
-             p)
+                   VM.modify v (applySynapticSpikeToNeuron syninfo spktm) i)
+             ns)
