@@ -9,7 +9,7 @@ import Control.DeepSeq
 
 
 -- | Spike is a tuple of the form (index, time)
-data Spike = Spike (Int, Double) deriving Generic
+data Spike = Spike {-# UNPACK #-} !(Int, Double) deriving Generic
 
 instance Show Spike where
     show (Spike (x,y)) = show (x,y)
@@ -34,7 +34,7 @@ instance NFData Spike
 --
 -- Note 1 - the index is Int and not Double
 -- Note 2 - TODO: SpikeTrain (V.fromList []) != EmptySpikeTrain although conceptually it is.
-data SpikeTrain = SpikeTrain (V.Vector Spike) | EmptySpikeTrain
+data SpikeTrain = SpikeTrain !(V.Vector Spike) | EmptySpikeTrain
                   deriving (Show, Eq, Generic)
 
 instance NFData SpikeTrain where
@@ -70,7 +70,7 @@ merge a b
     | V.head a > V.head b = V.cons (V.head b) (merge a (V.tail b))
 
 -- | Represents next time of spike of a neuron
-data NextSpikeTime = At Double | Never
+data NextSpikeTime = At {-# UNPACK #-} !Double | Never
 instance Eq NextSpikeTime where
     (==) Never Never = True
     (==) Never (At _) = False

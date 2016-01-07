@@ -11,7 +11,7 @@ import Control.Monad.State
 
 
 -- | Network data type encapsulates a network of neurons by holding a Population and its Connections
-data Network = Network {population:: Population, connections:: Connections}
+data Network = Network {population:: !Population, connections:: !Connections}
                deriving Show
 
 
