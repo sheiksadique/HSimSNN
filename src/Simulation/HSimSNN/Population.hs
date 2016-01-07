@@ -7,6 +7,7 @@ import Simulation.HSimSNN.Spikes
 import Data.List
 import Data.Vector (Vector)
 import qualified Data.Vector as V
+import qualified Data.Vector.Mutable as VM
 
 -- | A populatoin of 'Neuron's is simply a list of 'Neuron's
 data Population = Population {neurons:: !(Vector Neuron)}
@@ -56,10 +57,15 @@ applyPreSynapticSpikeToPop :: (Int, Double)
                            -> SynInfo
                            -> Population
                            -> Population
-applyPreSynapticSpikeToPop (indx,spktm) syninfo (Population p) =
-    Population (a V.++ (V.cons nl b))
-  where
-    -- TODO: Partial function
-    (a,(V.splitAt 1 -> (z,b))) =
-        V.splitAt indx (p)
-    nl = applySynapticSpikeToNeuron syninfo spktm (V.head z)
+applyPreSynapticSpikeToPop (indx,spktm) syninfo (Population p) = Population (V.modify
+    (\v -> VM.modify v (applySynapticSpikeToNeuron syninfo
+                                                   spktm)
+                              indx
+
+    ) p)
+    -- Population (a V.++ (V.cons nl b))
+  -- where
+  --   -- TODO: Partial function
+  --   (a,(V.splitAt 1 -> (z,b))) =
+  --       V.splitAt indx (p)
+  --   nl = applySynapticSpikeToNeuron syninfo spktm (V.head z)
