@@ -1,11 +1,12 @@
 -- | Population module encompasses all functions on populations
 module Simulation.HSimSNN.Population where
 
-import Simulation.HSimSNN.Neuron
-import Simulation.HSimSNN.Spikes
+import Data.Ord (comparing)
 import Data.Vector (Vector)
 import qualified Data.Vector as V
 import qualified Data.Vector.Mutable as VM
+import Simulation.HSimSNN.Neuron
+import Simulation.HSimSNN.Spikes
 
 -- | A populatoin of 'Neuron's is simply a list of 'Neuron's
 data Population = Population
@@ -23,17 +24,12 @@ evaluatePopStateAtt (Population ns) t = Population $ V.map (flip evaluateNeuronS
 
 -- | Find the index of neuron that is about to spike in a 'Population'
 firstSpikingNeuron :: Population -> Maybe Int
-firstSpikingNeuron pop
-  | firstspiketime == Never = Nothing
-  | otherwise =
-      V.findIndex
-          (\x ->
-                (nextSpikeTime x) ==
-                firstspiketime)
-          (neurons pop)
+firstSpikingNeuron (Population ns)
+  | (nextSpikeTime (ns V.! minimumSpikeIndx)) == Never = Nothing
+  | otherwise = Just minimumSpikeIndx
   where
-    firstspiketime =
-        minimum (V.map nextSpikeTime (neurons pop))
+    minimumSpikeIndx =
+        V.minIndexBy (comparing nextSpikeTime) ns
 
 -- | Update the neuron with index i of a pop at time t
 resetNeuronOfPop :: Population -> Maybe Int -> Double -> Population
