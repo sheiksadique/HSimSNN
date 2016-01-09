@@ -45,18 +45,21 @@ isEmptySpikeTrain EmptySpikeTrain = True
 isEmptySpikeTrain (SpikeTrain v1)
    | V.length v1 == 0 = True
    | otherwise = False
+{-# INLINE isEmptySpikeTrain #-}
 
 -- | Concatenate two 'SpikeTrain's
 concST :: SpikeTrain -> SpikeTrain -> SpikeTrain
 concST EmptySpikeTrain st = st
 concST st EmptySpikeTrain = st
 concST (SpikeTrain v1) (SpikeTrain v2) = SpikeTrain (v1 V.++ v2)
+{-# INLINE concST #-}
 
 -- | Merge two SORTED spike trians
 mergeST :: SpikeTrain -> SpikeTrain -> SpikeTrain
 mergeST EmptySpikeTrain st = st
 mergeST st EmptySpikeTrain = st
 mergeST (SpikeTrain v1) (SpikeTrain v2) = SpikeTrain (merge v1 v2)
+{-# INLINE mergeST #-}
 
 -- | Merge two sorted lists
 -- http://stackoverflow.com/questions/8363445/merge-two-sorted-lists-in-haskell
@@ -68,6 +71,7 @@ merge a b
 merge a b
     | V.head a <= V.head b = V.cons (V.head a) (merge (V.tail a) b)
     | V.head a > V.head b = V.cons (V.head b) (merge a (V.tail b))
+{-# INLINE merge #-}
 
 -- | Represents next time of spike of a neuron
 data NextSpikeTime = At {-# UNPACK #-} !Double | Never
@@ -86,6 +90,7 @@ instance Ord NextSpikeTime where
 getTime::NextSpikeTime -> Double
 getTime (At t) = t
 getTime Never = error "There is no spike"
+{-# INLINE getTime #-}
 
 -- | Save SpikeTrain to a file
 spikeTrainToFile:: FilePath -> SpikeTrain -> IO ()

@@ -25,6 +25,7 @@ data SynInfo = SynInfo
     } deriving (Show)
 
 -- | Neuron threshold
+threshold :: Double
 threshold = 1.0
 
 -- | Neuron is defined by its state and time at which its state was last evaluated
@@ -55,6 +56,7 @@ vmem neuron = (V.head.state) neuron -- For now the state of a neuron is the firs
 -- use a reader monad for global values?
 aboveThreshold:: Neuron -> Bool
 aboveThreshold neuron = vmem neuron > threshold
+{-# INLINE aboveThreshold #-}
 
 -- | Check for threshold and reset neuron
 -- Should be called with the simulatoin time and only when the neuron spikes
@@ -73,6 +75,7 @@ resetNeuron neuron t
                     y = V.tail $ state neuron -- time of last spike
                     -- neuron dynamics
                     newstate = [0,t] V.++ y
+{-# INLINE resetNeuron #-}
 
 -- | Evaluate the next possible spike time of a neuron given its state at time t
 --
@@ -84,6 +87,7 @@ nextSpikeTime neuron
     | aboveThreshold neuron = SPK.At $ tLastUpdate neuron
     | otherwise = SPK.Never
     -- -- |otherwise =  SPK.At $(threshold-vmem neuron) + tlastupdate neuron
+{-# INLINE nextSpikeTime #-}
 
 
 -- | Evaluate state of neuron at time t
@@ -105,6 +109,7 @@ evaluateNeuronStateAtt neuron t
                             (\v ->
                                   VM.modify v (* decayfact) 0)
                             (state neuron)
+{-# INLINE evaluateNeuronStateAtt #-}
 
 -- | Apply a presynaptic spike to a neuron at time t
 applySynapticSpikeToNeuron :: SynInfo -> Double -> Neuron -> Neuron
@@ -114,6 +119,7 @@ applySynapticSpikeToNeuron (SynInfo w _) spktm neuron
                 where
                     Neuron curstate _ = evaluateNeuronStateAtt neuron spktm
                     newstate = V.modify (\v -> VM.modify v (+w) 0) curstate
+{-# INLINE applySynapticSpikeToNeuron #-}
 
 -- | Check if a neuron is still refractory
 isRefractoryAtt:: Neuron -> Double -> Bool
@@ -123,3 +129,4 @@ isRefractoryAtt (Neuron oldstate tlastupdate) t
                 | otherwise = True
                 where
                     tref = 0.5
+{-# INLINE isRefractoryAtt #-}
