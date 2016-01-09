@@ -4,6 +4,7 @@ module Simulation.HSimSNN.Connections where
 
 import Simulation.HSimSNN.Population
 import Simulation.HSimSNN.Neuron
+import Data.Matrix (Matrix)
 
 
 -- | Connections encapsulates information about source and destination neurons
@@ -17,7 +18,7 @@ import Simulation.HSimSNN.Neuron
 --
 -- * The length of each sublist can be more than N to support multiple synapses per neuron.
 --
-data Connections = Connections {pop:: !Population, syninfo:: ![[(Int,SynInfo)]]}
+data Connections = Connections {pop:: !Population, syninfo:: !(Matrix (Int,SynInfo))}
 -- | String representation of Connections
 instance Show Connections where
     show (Connections _ sinf) = show sinf

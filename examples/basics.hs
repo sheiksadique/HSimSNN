@@ -3,6 +3,7 @@ module Main where
 
 import Simulation.HSimSNN
 import Data.List
+import qualified Data.Matrix as M
 import qualified Data.Vector as V
 import Control.Monad.State
 import System.Random
@@ -49,7 +50,7 @@ runsim = do
         -- Initialize a population of neurons with different states
         mypop = initPop $ V.fromList [[x,0] | x<-(take npop (randomRs (0.0,1.0) rng))] 
         -- create connection matrix (the length of this list should be the same as population size)
-        cm = [mkRndAxon npop ninp rinit| rinit <-[0..(npop-1)]]
+        cm = M.fromLists [mkRndAxon npop ninp rinit| rinit <-[0..(npop-1)]]
         -- Define a connection
         conn = Connections mypop cm
         -- Define a network

@@ -4,6 +4,7 @@ module Main where
 import Control.Monad.State
 import Criterion.Main
 import Data.List
+import qualified Data.Matrix as M
 import qualified Data.Vector as V
 import Simulation.HSimSNN
 import System.Process
@@ -23,9 +24,9 @@ spontaneousActivity network = do
 network1 = Network mypop conn 
 
 spktrn = SpikeTrain $ V.fromList $ map Spike $ zip nindx tindx
-tsim = 50.0 -- Simulation time (ms)
+tsim = 100.0 -- Simulation time (ms)
 npop = 300 -- Total population size
-ninp = 50 -- No. of neurons assigned only for input
+ninp = 100 -- No. of neurons assigned only for input
 -- Simulation time
 tinp = 45.0 -- input time (ms)
 -- Create a random no. generator
@@ -33,7 +34,7 @@ rng = mkStdGen 6
 -- Initialize a population of neurons with different states
 mypop = initPop $ V.fromList [[x,0] | x<-(take npop (randomRs (0.0,1.0) rng))] 
 -- create connection matrix (the length of this list should be the same as population size)
-cm = [mkRndAxon npop ninp rinit| rinit <-[0..(npop-1)]]
+cm = M.fromLists $ [mkRndAxon npop ninp rinit| rinit <-[0..(npop-1)]]
 -- Define a connection
 conn = Connections mypop cm
 -- Define a network

@@ -6,6 +6,7 @@ import Simulation.HSimSNN.Connections
 import Simulation.HSimSNN.Spikes
 import Simulation.HSimSNN.Neuron
 import Data.Maybe
+import qualified Data.Matrix as M
 import qualified Data.Vector as V
 import Control.Monad.State
 
@@ -67,20 +68,19 @@ passThroughNetwork EmptySpikeTrain tsim = do
                     let tn =
                             getTime nextspktm
                     let newspk =
-                            SpikeTrain $
-                            V.fromList
-                                [Spike (indx, tn)]
-                    resetNeuronNinNet indx tn
+                            SpikeTrain
+                                (V.singleton
+                                    (Spike (indx, tn)))
+                    _ <- resetNeuronNinNet indx tn
                     (newnet,_) <- get
                     put (newnet, concST spkout newspk)
                     passThroughNetwork
-                        (SpikeTrain $
-                         V.fromList
-                             [Spike (indx, tn + 1.0)])
+                        (SpikeTrain 
+                             (V.singleton
+                                  (Spike (indx, tn + 1.0))))
                         tsim
   where
-    delay =
-        1.0 -- Spike transmission delay hardcoded
+    delay = 1.0 -- Spike transmission delay hardcoded
 
 passThroughNetwork (SpikeTrain spktrn) tsim = do
     let Spike (indx,t) =
@@ -99,7 +99,7 @@ passThroughNetwork (SpikeTrain spktrn) tsim = do
                       applyPreSynapticSpike
                           (ind, t)
                           sinf)
-                (((syninfo . connections) net) !!
+                (M.takeRow ((syninfo . connections) net)
                  indx)
             -- Process reminder spikes
             let restspk =

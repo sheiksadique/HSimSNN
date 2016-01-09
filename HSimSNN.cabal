@@ -59,15 +59,19 @@ library
                        Simulation.HSimSNN.Spikes
   build-depends:       base
                     ,  deepseq
+                    ,  matrices
                     ,  mtl
                     ,  vector
   hs-source-dirs:      src
+  default-language: Haskell2010
+  ghc-options: -O2
   
 executable hsimsnn-example
   hs-source-dirs:   ./examples
   main-is:          basics.hs
   build-depends: base
               ,  HSimSNN 
+              ,  matrices
               ,  mtl
               ,  random
               ,  process
@@ -81,6 +85,7 @@ benchmark hsimsnn-benchmark
   build-depends: base
               ,  criterion
               ,  HSimSNN 
+              ,  matrices
               ,  mtl
               ,  random
               ,  process
