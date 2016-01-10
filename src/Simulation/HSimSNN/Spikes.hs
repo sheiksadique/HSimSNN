@@ -167,4 +167,4 @@ spikeTrainFromFile fname = do
 -- | Generate SpikeTrain from String
 spikeTrainFromString:: String -> SpikeTrain
 spikeTrainFromString "EmptySpikeTrain" = EmptySpikeTrain
-spikeTrainFromString str = SpikeTrain $V.fromList $map Spike (read str :: [(Int, Double)])
+spikeTrainFromString str = SpikeTrain $ V.fromList $ map Spike (read str :: [(Int, Double)])

@@ -10,9 +10,12 @@ import System.Random
 import System.Process
 
 -- | Make a random connectivity matrx initialized with random weights
-mkRndAxon :: Int->Int -> Int -> [(Int, SynInfo)]
-mkRndAxon n ninp rnginit = zip [ninp..(n-1)] $map ((flip SynInfo) "exc") $randomRs (-0.15,0.15) $mkStdGen rnginit
-
+mkRndAxon :: Int -> Int -> Int -> [(Int, SynInfo)]
+mkRndAxon n ninp rnginit =
+    zip [ninp .. (n - 1)] $
+    map ((flip SynInfo) "exc") $
+    randomRs (-0.15, 0.15) $
+    mkStdGen rnginit
 
 runsim = do
     -- Get spontaneous activity till time t as sanity check
@@ -31,7 +34,7 @@ runsim = do
     spikeTrainToFile "output.txt" outspktrn
 
     -- Display plots
-    -- r <- createProcess (proc "python"  ["scripts/rasterplot.py"])
+    r <- createProcess (proc "python"  ["scripts/rasterplot.py"])
 
     -- Print states of all neurons
     -- print $ population newnet
@@ -60,6 +63,6 @@ runsim = do
         nspk = round (f*tinp/1000.0*(fromIntegral ninp))
         nindx = take nspk (randomRs (0,(ninp-1)) rng)
         tindx = sort $ take nspk (randomRs (0.0,tinp) rng)
-        spktrn = SpikeTrain $V.fromList $map Spike $zip nindx tindx
-    
+        spktrn = SpikeTrain $ V.fromList $ map Spike $ zip nindx tindx
+
 main = runsim
