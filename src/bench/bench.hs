@@ -11,10 +11,16 @@ import System.Process
 import System.Random
 
 -- | Make a random connectivity matrx initialized with random weights
-mkRndAxon :: Int->Int -> Int -> [(Int, SynInfo)]
-mkRndAxon n ninp rnginit = zip [ninp..(n-1)] $map ((flip SynInfo) "exc") $randomRs (-0.15,0.15) $mkStdGen rnginit
-
-
+mkRndAxon :: Int -> Int -> Int -> [(Int, SynInfo)]
+mkRndAxon n ninp rnginit =
+    zip
+        [ninp .. (n - 1)]
+        (fmap
+              ((flip SynInfo)
+                   (read "Exec"))
+              (randomRs
+                   (-0.15, 0.15)
+                   (mkStdGen rnginit)))
 
 spontaneousActivity network = do
     -- Get spontaneous activity till time t as sanity check

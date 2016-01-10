@@ -59,6 +59,7 @@ library
                        Simulation.HSimSNN.Spikes
   build-depends:       base
                     ,  deepseq
+                    ,  monad-loops
                     ,  matrices
                     ,  mtl
                     , vector

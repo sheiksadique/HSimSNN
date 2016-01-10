@@ -17,11 +17,11 @@ import qualified Data.Vector.Generic.Mutable as VM
 import qualified Simulation.HSimSNN.Spikes as SPK
 
 -- | Data container for synaptic information related to a connection
--- Shouldn't syntype be a sumtype?
+data SynType = Exec deriving (Show,Read) 
 
 data SynInfo = SynInfo
     { weight :: {-# UNPACK #-} !Double
-    , syntype :: !String
+    , syntype :: !SynType
     } deriving (Show)
 
 -- | Neuron threshold
