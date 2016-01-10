@@ -1,4 +1,10 @@
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedLists #-}
+{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE UnicodeSyntax #-}
 
 -- | Neuron module encapsulates behavior of a 'Neuron'
 --
@@ -12,17 +18,24 @@
 --
 module Simulation.HSimSNN.Neuron where
 
+import Data.Vector.Unboxed (Unbox)
 import qualified Data.Vector.Unboxed as V
 import qualified Data.Vector.Generic.Mutable as VM
+import Data.Vector.Unboxed.Deriving
 import qualified Simulation.HSimSNN.Spikes as SPK
 
 -- | Data container for synaptic information related to a connection
-data SynType = Exec deriving (Show,Read) 
+data SynType = Exec deriving (Show,Read,Enum) 
 
 data SynInfo = SynInfo
     { weight :: {-# UNPACK #-} !Double
     , syntype :: !SynType
     } deriving (Show)
+
+derivingUnbox "SynInfo"
+    [t| SynInfo → (Double, Int) |]
+    [| \ (SynInfo weight syntype) → (weight, (fromEnum syntype)) |]
+    [| \ (weight, syntype) → (SynInfo weight (toEnum syntype)) |]
 
 -- | Neuron threshold
 threshold :: Double
@@ -38,7 +51,7 @@ data Neuron = Neuron
     }
 -- | String representation for Neuron
 instance Show Neuron where
-    show (Neuron st tl) = "Neuron (" ++ (show $(V.toList) st) ++ " @ " ++ (show tl) ++ ")"
+    show (Neuron st tl) = "Neuron (" ++ (show $ (V.toList) st) ++ " @ " ++ (show tl) ++ ")"
 
 -- | Initializes a neuron with a given state at time 0
 initNeuron :: [Double] -> Neuron
@@ -68,7 +81,7 @@ resetNeuron neuron t
                 | tLastUpdate neuron > t = error $
                                              (show t)
                                              ++ "Neuron has already been updated to the future"
-                                             ++ (show $tLastUpdate neuron) -- for debugging
+                                             ++ (show $ tLastUpdate neuron) -- for debugging
                 | otherwise = Neuron newstate t
                 where
                     -- Rewrite this without lists
@@ -99,7 +112,7 @@ evaluateNeuronStateAtt neuron t
                 | t == (tLastUpdate neuron) = neuron -- The neuron has already been updated
                 | otherwise = error $ (show t)
                                       ++ "Neuron has already been updated to the future"
-                                      ++ (show $tLastUpdate neuron) -- for debugging
+                                      ++ (show $ tLastUpdate neuron) -- for debugging
                 where
                     taum = 10.0
                     decayfact = exp (((tLastUpdate neuron)-t)/taum) -- decay factor

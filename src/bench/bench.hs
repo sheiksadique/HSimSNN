@@ -4,7 +4,7 @@ module Main where
 import Control.Monad.State
 import Criterion.Main
 import Data.List
-import qualified Data.Matrix as M
+import qualified Data.Matrix.Unboxed as M
 import qualified Data.Vector as V
 import Simulation.HSimSNN
 import System.Process

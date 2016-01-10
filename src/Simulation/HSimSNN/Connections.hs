@@ -4,7 +4,7 @@ module Simulation.HSimSNN.Connections where
 
 import Simulation.HSimSNN.Population
 import Simulation.HSimSNN.Neuron
-import Data.Matrix (Matrix)
+import Data.Matrix.Unboxed (Matrix)
 
 
 -- | Connections encapsulates information about source and destination neurons

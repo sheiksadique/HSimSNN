@@ -6,8 +6,9 @@ import Simulation.HSimSNN.Connections
 import Simulation.HSimSNN.Spikes
 import Simulation.HSimSNN.Neuron
 import Data.Maybe
-import qualified Data.Matrix as M
+import qualified Data.Matrix.Unboxed as M
 import qualified Data.Vector as V
+import qualified Data.Vector.Unboxed as VU
 import Control.Monad.State
 
 
@@ -94,13 +95,13 @@ passThroughNetwork (SpikeTrain spktrn) tsim = do
             -- Apply first spike
             (net,_) <- get
             --update all neurons connected to this axon (im very proud of this line of code :D .. i know.. silly)
-            mapM_
-                (\(ind,sinf) ->
-                      applyPreSynapticSpike
-                          (ind, t)
-                          sinf)
-                (M.takeRow ((syninfo . connections) net)
-                 indx)
+            VU.mapM_
+                   (\(ind,sinf) ->
+                         applyPreSynapticSpike
+                             (ind, t)
+                             sinf)
+                   (M.takeRow ((syninfo . connections) net)
+                    indx)
             -- Process reminder spikes
             let restspk =
                     V.tail spktrn -- reminder of spikes
