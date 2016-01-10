@@ -31,7 +31,7 @@ runsim = do
     spikeTrainToFile "output.txt" outspktrn
 
     -- Display plots
-    r <- createProcess (proc "python"  ["scripts/rasterplot.py"])
+    -- r <- createProcess (proc "python"  ["scripts/rasterplot.py"])
 
     -- Print states of all neurons
     -- print $ population newnet

@@ -1,11 +1,18 @@
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE LambdaCase #-}
 -- | Module for handling spikes
 --
 module Simulation.HSimSNN.Spikes where
 
-import qualified Data.Vector as V
-import GHC.Generics
+import Data.STRef
 import Control.DeepSeq
+import Control.Monad.ST
+import Control.Monad
+import Data.Vector.Algorithms.Intro (sort)
+import qualified Data.Vector as V
+import qualified Data.Vector.Mutable as VM
+import GHC.Generics
+import Debug.Trace
 
 
 -- | Spike is a tuple of the form (index, time)
@@ -63,14 +70,68 @@ mergeST (SpikeTrain v1) (SpikeTrain v2) = SpikeTrain (merge v1 v2)
 
 -- | Merge two sorted lists
 -- http://stackoverflow.com/questions/8363445/merge-two-sorted-lists-in-haskell
-merge :: Ord a => V.Vector a -> V.Vector a -> V.Vector a
+merge :: Ord a
+      => V.Vector a -> V.Vector a -> V.Vector a
 --merge = undefined
 merge a b
-    | V.length a == 0  = b
-    | V.length b == 0  = a
-merge a b
-    | V.head a <= V.head b = V.cons (V.head a) (merge (V.tail a) b)
-    | V.head a > V.head b = V.cons (V.head b) (merge a (V.tail b))
+  | V.length a == 0 = b
+  | V.length b == 0 = a
+  | otherwise = V.modify sort (a V.++ b)
+      -- runST
+      --     (do a' <- V.thaw a
+      --         sort a'
+      --         b' <- V.thaw b
+      --         sort b'
+      --         let n =
+      --                 (VM.length a')
+      --             m =
+      --                 (VM.length b')
+      --         sorted <- VM.new (n + m)
+      --         j <- newSTRef (0 :: Int)
+      --         k <- newSTRef (0 :: Int)
+      --         forM_ [0 .. (m + n - 1)] $
+      --             \i ->
+      --                  do (liftM2
+      --                          (&&)
+      --                          (liftM2
+      --                               (<)
+      --                               (readSTRef j)
+      --                               (pure m))
+      --                          (liftM2
+      --                               (<)
+      --                               (readSTRef k)
+      --                               (pure n))) >>=
+      --                         \case
+      --                             True ->
+      --                                 (liftM2
+      --                                      (<)
+      --                                      (VM.read a' =<< readSTRef j)
+      --                                      (VM.read b' =<< readSTRef k)) >>=
+      --                                 \case
+      --                                     True ->
+      --                                         (VM.write sorted i =<<
+      --                                          VM.read a' =<< readSTRef j) >>
+      --                                         modifySTRef j (+ 1)
+      --                                     False ->
+      --                                         (VM.write sorted i =<<
+      --                                          VM.read b' =<< readSTRef k) >>
+      --                                         modifySTRef k (+ 1)
+      --                             False ->
+      --                                 liftM2
+      --                                     (==)
+      --                                     (readSTRef j)
+      --                                     (pure m) >>=
+      --                                 \case
+      --                                     True ->
+      --                                         (VM.write sorted i =<<
+      --                                              VM.read b' =<< readSTRef k) >>
+      --                                         modifySTRef k (+ 1)
+      --                                     False ->
+      --                                         (VM.write sorted i =<<
+      --                                              VM.read a' =<< readSTRef j) >>
+      --                                         modifySTRef j (+ 1)
+      --         V.freeze sorted)    -- | V.head a <= V.head b = V.cons (V.head a) (merge (V.tail a) b)
+    -- | V.head a > V.head b = V.cons (V.head b) (merge a (V.tail b))
 {-# INLINE merge #-}
 
 -- | Represents next time of spike of a neuron
