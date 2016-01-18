@@ -52,9 +52,9 @@ passThroughNetwork EmptySpikeTrain tsim = do
     (network,spkout) <- get
     case firstSpikingNeuron (population network) of
         Nothing -> return EmptySpikeTrain
-        Just indx -> 
+        Just indx ->
             do let nextspktm =
-                       nextSpikeTime 
+                       nextSpikeTime
                            (((neurons . population) network) V.! indx)
                if (nextspktm > At tsim) -- next spike time after tsim
                    then return EmptySpikeTrain
@@ -69,7 +69,7 @@ passThroughNetwork EmptySpikeTrain tsim = do
                        (newnet,_) <- get
                        put (newnet, concST spkout newspk)
                        passThroughNetwork
-                           (SpikeTrain 
+                           (SpikeTrain
                                (VU.singleton
                                        (Spike (indx, tn + 1.0))))
                            tsim
