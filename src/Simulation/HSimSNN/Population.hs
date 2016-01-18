@@ -5,6 +5,8 @@ import Data.Ord (comparing)
 import Data.Vector (Vector)
 import qualified Data.Vector as V
 import qualified Data.Vector.Mutable as VM
+import Data.Matrix (Matrix)
+import qualified Data.Matrix as Matrix
 import Simulation.HSimSNN.Neuron
 import Simulation.HSimSNN.Spikes
 

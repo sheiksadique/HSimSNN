@@ -6,6 +6,7 @@ import Criterion.Main
 import Data.List
 import qualified Data.Matrix.Unboxed as M
 import qualified Data.Vector as V
+import qualified Data.Vector.Unboxed as VU
 import Simulation.HSimSNN
 import System.Process
 import System.Random
@@ -29,7 +30,7 @@ spontaneousActivity network = do
 
 network1 = Network mypop conn 
 
-spktrn = SpikeTrain $ V.fromList $ map Spike $ zip nindx tindx
+spktrn = SpikeTrain $ VU.fromList $ map Spike $ zip nindx tindx
 tsim = 100.0 -- Simulation time (ms)
 npop = 300 -- Total population size
 ninp = 100 -- No. of neurons assigned only for input

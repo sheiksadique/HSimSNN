@@ -70,22 +70,22 @@ passThroughNetwork EmptySpikeTrain tsim = do
                             getTime nextspktm
                     let newspk =
                             SpikeTrain
-                                (V.singleton
-                                    (Spike (indx, tn)))
+                                (VU.singleton
+                                     (Spike (indx, tn)))
                     _ <- resetNeuronNinNet indx tn
                     (newnet,_) <- get
                     put (newnet, concST spkout newspk)
                     passThroughNetwork
                         (SpikeTrain 
-                             (V.singleton
-                                  (Spike (indx, tn + 1.0))))
+                             (VU.singleton
+                                   (Spike (indx, tn + 1.0))))
                         tsim
   where
     delay = 1.0 -- Spike transmission delay hardcoded
 
 passThroughNetwork (SpikeTrain spktrn) tsim = do
     let Spike (indx,t) =
-            V.head spktrn -- First spike
+            VU.head spktrn -- First spike
     if (t <= tsim)
         then do
             --update network to before the spike arrives and collect any delayed
@@ -104,7 +104,7 @@ passThroughNetwork (SpikeTrain spktrn) tsim = do
                     indx)
             -- Process reminder spikes
             let restspk =
-                    V.tail spktrn -- reminder of spikes
+                    VU.tail spktrn -- reminder of spikes
             if isEmptySpikeTrain dspktrn
                 then if isEmptySpikeTrain
                             (SpikeTrain restspk)

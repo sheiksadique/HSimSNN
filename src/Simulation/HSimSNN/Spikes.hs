@@ -1,22 +1,36 @@
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE OverloadedLists #-}
+{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE UnicodeSyntax #-}
 -- | Module for handling spikes
 --
 module Simulation.HSimSNN.Spikes where
 
-import Data.STRef
 import Control.DeepSeq
-import Control.Monad.ST
 import Control.Monad
+import Control.Monad.ST
+import Data.STRef
 import Data.Vector.Algorithms.Intro (sort)
-import qualified Data.Vector as V
 import qualified Data.Vector.Mutable as VM
-import GHC.Generics
+import Data.Vector.Unboxed (Unbox)
+import qualified Data.Vector.Unboxed as V
+import Data.Vector.Unboxed.Deriving
 import Debug.Trace
+import GHC.Generics
 
 
 -- | Spike is a tuple of the form (index, time)
 data Spike = Spike {-# UNPACK #-} !(Int, Double) deriving (Generic)
+
+derivingUnbox "Spike"
+    [t| Spike → (Int, Double) |]
+    [| \ (Spike (index, time)) → (index, time) |]
+    [| \ (index, time) → (Spike (index, time)) |]
 
 instance Show Spike where
     show (Spike (x,y)) = show (x,y)
@@ -70,7 +84,7 @@ mergeST (SpikeTrain v1) (SpikeTrain v2) = SpikeTrain (merge v1 v2)
 
 -- | Merge two sorted lists
 -- http://stackoverflow.com/questions/8363445/merge-two-sorted-lists-in-haskell
-merge :: Ord a
+merge :: (Ord a, Unbox a)
       => V.Vector a -> V.Vector a -> V.Vector a
 --merge = undefined
 merge a b

@@ -5,6 +5,7 @@ import Simulation.HSimSNN
 import Data.List
 import qualified Data.Matrix.Unboxed as M
 import qualified Data.Vector as V
+import qualified Data.Vector.Unboxed as VU
 import Control.Monad.State
 import System.Random
 import System.Process
@@ -63,6 +64,6 @@ runsim = do
         nspk = round (f*tinp/1000.0*(fromIntegral ninp))
         nindx = take nspk (randomRs (0,(ninp-1)) rng)
         tindx = sort $ take nspk (randomRs (0.0,tinp) rng)
-        spktrn = SpikeTrain $ V.fromList $ map Spike $ zip nindx tindx
+        spktrn = SpikeTrain $ VU.fromList $ map Spike $ zip nindx tindx
 
 main = runsim

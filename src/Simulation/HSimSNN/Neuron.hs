@@ -18,9 +18,9 @@
 --
 module Simulation.HSimSNN.Neuron where
 
+import qualified Data.Vector.Generic.Mutable as VM
 import Data.Vector.Unboxed (Unbox)
 import qualified Data.Vector.Unboxed as V
-import qualified Data.Vector.Generic.Mutable as VM
 import Data.Vector.Unboxed.Deriving
 import qualified Simulation.HSimSNN.Spikes as SPK
 
