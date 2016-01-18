@@ -78,9 +78,17 @@ concST (SpikeTrain v1) (SpikeTrain v2) = SpikeTrain (v1 V.++ v2)
 -- | Merge two SORTED spike trians
 mergeST :: SpikeTrain -> SpikeTrain -> SpikeTrain
 mergeST EmptySpikeTrain EmptySpikeTrain = EmptySpikeTrain
-mergeST EmptySpikeTrain (SpikeTrain st) = SpikeTrain st
-mergeST (SpikeTrain st) EmptySpikeTrain = SpikeTrain st
-mergeST (SpikeTrain v1) (SpikeTrain v2) = SpikeTrain (merge v1 v2)
+mergeST EmptySpikeTrain (SpikeTrain st) 
+  | V.length st == 0 = EmptySpikeTrain
+  | otherwise = SpikeTrain st
+mergeST (SpikeTrain st) EmptySpikeTrain
+  | V.length st == 0 = EmptySpikeTrain
+  | otherwise = SpikeTrain st
+mergeST (SpikeTrain v1) (SpikeTrain v2)
+  | isEmptySpikeTrain st = EmptySpikeTrain
+  | otherwise = st
+  where
+    st = SpikeTrain (merge v1 v2)
 {-# INLINE mergeST #-}
 
 -- | Merge two sorted lists
