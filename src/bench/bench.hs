@@ -32,7 +32,7 @@ network1 = Network mypop conn
 
 spktrn = SpikeTrain $ VU.fromList $ map Spike $ zip nindx tindx
 tsim = 100.0 -- Simulation time (ms)
-npop = 300 -- Total population size
+npop = 340 -- Total population size
 ninp = 100 -- No. of neurons assigned only for input
 -- Simulation time
 tinp = 45.0 -- input time (ms)

@@ -77,8 +77,9 @@ concST (SpikeTrain v1) (SpikeTrain v2) = SpikeTrain (v1 V.++ v2)
 
 -- | Merge two SORTED spike trians
 mergeST :: SpikeTrain -> SpikeTrain -> SpikeTrain
-mergeST EmptySpikeTrain st = st
-mergeST st EmptySpikeTrain = st
+mergeST EmptySpikeTrain EmptySpikeTrain = EmptySpikeTrain
+mergeST EmptySpikeTrain (SpikeTrain st) = SpikeTrain st
+mergeST (SpikeTrain st) EmptySpikeTrain = SpikeTrain st
 mergeST (SpikeTrain v1) (SpikeTrain v2) = SpikeTrain (merge v1 v2)
 {-# INLINE mergeST #-}
 

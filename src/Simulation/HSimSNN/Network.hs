@@ -50,36 +50,29 @@ type DelayedSpikes = SpikeTrain
 passThroughNetwork :: SpikeTrain -> Double -> State NetworkState DelayedSpikes
 passThroughNetwork EmptySpikeTrain tsim = do
     (network,spkout) <- get
-    let i =
-            firstSpikingNeuron
-                (population network) -- Check for any spikes
-    if (i == Nothing) -- No spikes
-        then return EmptySpikeTrain
-        else do
-            let indx =
-                    fromJust i
-            let nextspktm =
-                    nextSpikeTime $
-                    ((neurons . population) network) V.!
-                    indx
-            if (nextspktm >
-                At tsim) -- next spike time after tsim
-                then return EmptySpikeTrain
-                else do
-                    let tn =
-                            getTime nextspktm
-                    let newspk =
-                            SpikeTrain
-                                (VU.singleton
-                                     (Spike (indx, tn)))
-                    _ <- resetNeuronNinNet indx tn
-                    (newnet,_) <- get
-                    put (newnet, concST spkout newspk)
-                    passThroughNetwork
-                        (SpikeTrain 
-                             (VU.singleton
-                                   (Spike (indx, tn + 1.0))))
-                        tsim
+    case firstSpikingNeuron (population network) of
+        Nothing -> return EmptySpikeTrain
+        Just indx -> 
+            do let nextspktm =
+                       nextSpikeTime 
+                           (((neurons . population) network) V.! indx)
+               if (nextspktm > At tsim) -- next spike time after tsim
+                   then return EmptySpikeTrain
+                   else do
+                       let tn =
+                               getTime nextspktm
+                       let newspk =
+                               SpikeTrain
+                                   (VU.singleton
+                                       (Spike (indx, tn)))
+                       resetNeuronNinNet indx tn
+                       (newnet,_) <- get
+                       put (newnet, concST spkout newspk)
+                       passThroughNetwork
+                           (SpikeTrain 
+                               (VU.singleton
+                                       (Spike (indx, tn + 1.0))))
+                           tsim
   where
     delay = 1.0 -- Spike transmission delay hardcoded
 
@@ -105,19 +98,20 @@ passThroughNetwork (SpikeTrain spktrn) tsim = do
             -- Process reminder spikes
             let restspk =
                     VU.tail spktrn -- reminder of spikes
-            if isEmptySpikeTrain dspktrn
-                then if isEmptySpikeTrain
-                            (SpikeTrain restspk)
-                         then passThroughNetwork EmptySpikeTrain tsim
-                         else passThroughNetwork
-                                  (SpikeTrain restspk)
-                                  tsim
-                else if isEmptySpikeTrain
-                            (SpikeTrain restspk)
-                         then passThroughNetwork dspktrn tsim -- >>= return
-                         else passThroughNetwork
-                                  (mergeST dspktrn (SpikeTrain restspk))
-                                  tsim
+            passThroughNetwork (mergeST dspktrn (SpikeTrain restspk)) tsim
+            -- if isEmptySpikeTrain dspktrn
+            --     then if isEmptySpikeTrain
+            --                 (SpikeTrain restspk)
+            --              then passThroughNetwork EmptySpikeTrain tsim
+            --              else passThroughNetwork
+            --                       (SpikeTrain restspk)
+            --                       tsim
+            --     else if isEmptySpikeTrain
+            --                 (SpikeTrain restspk)
+            --              then passThroughNetwork dspktrn tsim -- >>= return
+            --              else passThroughNetwork
+            --                       (mergeST dspktrn (SpikeTrain restspk))
+            --                       tsim
         else do
             -- Input spikes arrive after simulation time so they don't matter
             dspktrn <-
