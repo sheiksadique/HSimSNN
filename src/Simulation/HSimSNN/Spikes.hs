@@ -28,9 +28,9 @@ import GHC.Generics
 data Spike = Spike {-# UNPACK #-} !(Int, Double) deriving (Generic)
 
 derivingUnbox "Spike"
-    [t| Spike → (Int, Double) |]
-    [| \ (Spike (index, time)) → (index, time) |]
-    [| \ (index, time) → (Spike (index, time)) |]
+    [t| Spike -> (Int, Double) |]
+    [| \ (Spike (index, time)) -> (index, time) |]
+    [| \ (index, time) -> (Spike (index, time)) |]
 
 instance Show Spike where
     show (Spike (x,y)) = show (x,y)
