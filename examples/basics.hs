@@ -6,7 +6,6 @@ import Data.List
 import qualified Data.Matrix.Unboxed as M
 import qualified Data.Vector as V
 import qualified Data.Vector.Unboxed as VU
-import Control.Monad.State
 import System.Random
 import System.Process
 
@@ -20,7 +19,7 @@ mkRndAxon n ninp rnginit =
 
 runsim = do
     -- Get spontaneous activity till time t as sanity check
-    print $ evalState (passThroughNetwork EmptySpikeTrain tsim) (network, EmptySpikeTrain)
+    -- print $ passThroughNetwork network EmptySpikeTrain tsim 
 
     -- Save input spikes to file
     spikeTrainToFile "input.txt" spktrn
@@ -29,7 +28,7 @@ runsim = do
     inpspktrn <- spikeTrainFromFile "input.txt"
 
     -- Process a list of spikes through a network
-    let (newnet, outspktrn) = execState (passThroughNetwork inpspktrn tsim) (network, EmptySpikeTrain)
+    let (newnet, outspktrn) = passThroughNetwork network inpspktrn tsim 
 
     -- Save output to file
     spikeTrainToFile "output.txt" outspktrn

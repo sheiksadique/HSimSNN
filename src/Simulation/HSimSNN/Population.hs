@@ -1,19 +1,25 @@
+{-# LANGUAGE DeriveGeneric #-}
+
 -- | Population module encompasses all functions on populations
 module Simulation.HSimSNN.Population where
 
+import Control.DeepSeq
 import Data.Ord (comparing)
 import Data.Vector (Vector)
 import qualified Data.Vector as V
 import qualified Data.Vector.Mutable as VM
 import Data.Matrix (Matrix)
 import qualified Data.Matrix as Matrix
+import GHC.Generics (Generic)
 import Simulation.HSimSNN.Neuron
 import Simulation.HSimSNN.Spikes
 
 -- | A populatoin of 'Neuron's is simply a list of 'Neuron's
 data Population = Population
     { neurons :: !(Vector Neuron)
-    } deriving (Show)
+    } deriving (Show, Generic)
+
+instance NFData Population
 
 -- | Initialize a population of neurons with a list of initial states
 initPop :: Vector [Double] -> Population

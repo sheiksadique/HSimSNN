@@ -26,7 +26,7 @@ mkRndAxon n ninp rnginit =
 spontaneousActivity network = do
     -- Get spontaneous activity till time t as sanity check
     -- Process a list of spikes through a network
-    evalState (passThroughNetwork spktrn tsim) (network, EmptySpikeTrain)
+    fst $ passThroughNetwork network spktrn tsim
 
 network1 = Network mypop conn 
 

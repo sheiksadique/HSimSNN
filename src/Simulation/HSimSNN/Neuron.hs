@@ -5,6 +5,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE UnicodeSyntax #-}
+{-# LANGUAGE DeriveGeneric #-}
 
 -- | Neuron module encapsulates behavior of a 'Neuron'
 --
@@ -18,19 +19,25 @@
 --
 module Simulation.HSimSNN.Neuron where
 
+import Control.DeepSeq
 import qualified Data.Vector.Generic.Mutable as VM
 import Data.Vector.Unboxed (Unbox)
 import qualified Data.Vector.Unboxed as V
 import Data.Vector.Unboxed.Deriving
+import GHC.Generics (Generic)
 import qualified Simulation.HSimSNN.Spikes as SPK
 
 -- | Data container for synaptic information related to a connection
-data SynType = Exec deriving (Show,Read,Enum) 
+data SynType = Exec deriving (Show,Read,Enum,Generic) 
+
+instance NFData SynType
 
 data SynInfo = SynInfo
     { weight :: {-# UNPACK #-} !Double
     , syntype :: !SynType
-    } deriving (Show)
+    } deriving (Show, Generic)
+
+instance NFData SynInfo
 
 derivingUnbox "SynInfo"
     [t| SynInfo → (Double, Int) |]
@@ -48,7 +55,10 @@ threshold = 1.0
 data Neuron = Neuron
     { state :: !(V.Vector Double)
     , tLastUpdate :: {-# UNPACK #-} !Double
-    }
+    } deriving (Generic)
+
+instance NFData Neuron
+
 -- | String representation for Neuron
 instance Show Neuron where
     show (Neuron st tl) = "Neuron (" ++ (show $ (V.toList) st) ++ " @ " ++ (show tl) ++ ")"
