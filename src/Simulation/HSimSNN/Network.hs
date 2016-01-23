@@ -99,19 +99,6 @@ passThroughNetwork (SpikeTrain spktrn) tsim = do
             let restspk =
                     VU.tail spktrn -- reminder of spikes
             passThroughNetwork (mergeST dspktrn (SpikeTrain restspk)) tsim
-            -- if isEmptySpikeTrain dspktrn
-            --     then if isEmptySpikeTrain
-            --                 (SpikeTrain restspk)
-            --              then passThroughNetwork EmptySpikeTrain tsim
-            --              else passThroughNetwork
-            --                       (SpikeTrain restspk)
-            --                       tsim
-            --     else if isEmptySpikeTrain
-            --                 (SpikeTrain restspk)
-            --              then passThroughNetwork dspktrn tsim -- >>= return
-            --              else passThroughNetwork
-            --                       (mergeST dspktrn (SpikeTrain restspk))
-            --                       tsim
         else do
             -- Input spikes arrive after simulation time so they don't matter
             dspktrn <-
