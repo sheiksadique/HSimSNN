@@ -22,11 +22,11 @@ import Data.Matrix.Unboxed (Matrix)
 --
 data Connections = Connections
     { pop :: !Population
-    , syninfo :: !(Matrix (Int, SynInfo))
+    , synInfo :: !(Matrix (Int, SynInfo))
     } deriving Generic
 
 -- | String representation of Connections
 instance Show Connections where
-    show (Connections _ sinf) = show sinf
+    show = show . synInfo
 
 instance NFData Connections

@@ -1,4 +1,5 @@
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE BangPatterns #-}
 
 -- | Network module includes functions and data types that are involved in simulating the network
 module Simulation.HSimSNN.Network where
@@ -24,68 +25,59 @@ instance NFData Network
 
 -- | Value of network state
 type NetworkValue = SpikeTrain
+
 -- | Network state
 type NetworkState = (Network, SpikeTrain)
 
-
--- | State based resetNeuronNinNet
-resetNeuronNinNet :: Int -> Double -> State NetworkState NetworkValue
-resetNeuronNinNet n t = do
-    (network, spk) <- get
-    let updtpop = resetNeuronOfPop (population network) (Just n) t
-    let newnetwork = Network updtpop (connections network)
-    put (newnetwork, spk)
-    return spk
-
--- | Apply a presynaptic spike to a neuron at time t
-applyPreSynapticSpike :: (Int, Double) -> SynInfo -> State NetworkState NetworkValue
-applyPreSynapticSpike spk syninfo = do
-    (Network pop conn, spktrn) <- get
-    let updtpop = applyPreSynapticSpikeToPop spk syninfo pop
-    let newnetwork = Network updtpop conn
-    put (newnetwork, spktrn)
-    return spktrn
-
 -- | NetworkValue alias - delayed spikes after tsim
 type DelayedSpikes = SpikeTrain
+
+-- | State based resetNeuronNinNet
+resetNeuronNinNet :: Int -> Double -> Network -> Network
+resetNeuronNinNet n t network =
+    let updtPop = resetNeuronOfPop (population network) (Just n) t
+    in Network updtPop (connections network)
+
+-- | Apply a presynaptic spike to a neuron at time t
+-- applyPreSynapticSpike :: (Int, Double) -> SynInfo -> State NetworkState ()
+applyPreSynapticSpike :: (Int, Double) -> SynInfo -> Network -> Network
+applyPreSynapticSpike spk syninfo (Network pop conn) =
+    let updtPop = applyPreSynapticSpikeToPop spk syninfo pop
+    in Network updtPop conn
 
 passThroughNetwork :: Network -> SpikeTrain -> Double -> NetworkState
 passThroughNetwork net spkTrain tsim =
     execState
         (go spkTrain tsim)
-        (net, EmptySpikeTrain)
+        (net,EmptySpikeTrain)
   where
+    -- go :: SpikeTrain -> Double -> NetworkState -> NetworkState
+    go :: SpikeTrain -> Double -> State NetworkState DelayedSpikes
     go EmptySpikeTrain tsim = do
         (network,spkout) <- get
         case firstSpikingNeuron
                  (population network) of
-            Nothing ->
-                return EmptySpikeTrain
+            Nothing -> return EmptySpikeTrain
             Just indx ->
-                if (nextspktm >
-                    At tsim) -- next spike time after tsim
+                if (nextspktm > At tsim) -- next spike time after tsim
                     then return EmptySpikeTrain
                     else do
-                        resetNeuronNinNet indx tn
-                        (newnet,_) <- get
+                        let newnet = resetNeuronNinNet indx tn network
                         put (newnet, concST spkout newspk)
-                        go
-                              (SpikeTrain
+                        go (SpikeTrain
                                    (VU.singleton
                                         (Spike (indx, tn + delay))))
-                              tsim
+                           tsim
                 where nextspktm =
                           nextSpikeTime
                               ((neurons . population) network V.!
                                indx)
-                      tn =
-                          getTime nextspktm
+                      tn = getTime nextspktm
                       newspk =
                           SpikeTrain
                               (VU.singleton
                                    (Spike (indx, tn)))
-                      delay =
-                          1.0 -- Spike transmission delay hardcoded
+                      delay = 1.0 -- Spike transmission delay hardcoded
     go (SpikeTrain spktrn) tsim = do
         let Spike (indx,t) =
                 VU.head spktrn -- First spike
@@ -93,14 +85,13 @@ passThroughNetwork net spkTrain tsim =
             then do
                 --update network to before the spike arrives and collect any delayed
                 --spikes
-                dspktrn <-
-                    go EmptySpikeTrain t -- Delayed spikes
+                dspktrn <- go EmptySpikeTrain t -- Delayed spikes
                 -- Apply first spike
-                (net,_) <- get
-                updateAllNeurons net indx t
+                (net,spkout) <- get
+                let net' = updateAllNeurons net indx t
+                put (net',spkout)
                 -- Process reminder spikes
-                let restspk =
-                        VU.tail spktrn -- reminder of spikes
+                let restspk = VU.tail spktrn -- reminder of spikes
                 go (mergeST dspktrn (SpikeTrain restspk))
                    tsim
             else do
@@ -109,13 +100,9 @@ passThroughNetwork net spkTrain tsim =
                     go EmptySpikeTrain tsim
                 return (mergeST dspktrn (SpikeTrain spktrn))
 
--- | update all neurons connected to this axon (im very proud of this line of code :D .. i know.. silly)
-updateAllNeurons :: Network -> Int -> Double -> State NetworkState ()
-updateAllNeurons net indx t =
-    VU.mapM_
-        (\(ind,sinf) ->
-              applyPreSynapticSpike
-                  (ind, t)
-                  sinf)
-        (M.takeRow ((syninfo . connections) net) indx)
-{-# INLINE updateAllNeurons #-}
+-- | Update all neurons connected to this axon
+updateAllNeurons :: Network -> Int -> Double -> Network
+updateAllNeurons net aIx t =
+    let synInfoRow = (M.takeRow ((synInfo . connections) net) aIx)
+    in VU.foldl' f net synInfoRow
+  where f net (sIx, sInfo) = applyPreSynapticSpike (sIx, t) sInfo net
