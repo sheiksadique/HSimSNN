@@ -42,6 +42,22 @@ Long term goals
 Download and Installation
 =========================
 
+(Recommended) Install with stack
+Make sure your stack is up to date.
+
+(Optional)
+```
+$ stack upgrade
+```
+
+
+```
+$ git clone https://github.com/sheiksadique/HSimSNN.git
+$ cd HSimSNN
+$ stack build
+```
+
+
 For installing the library using cabal
 
 ```
@@ -64,13 +80,26 @@ Examples
 
 You can try some example scripts that demonstrate the use of the library.
 
+To run the file in ./examples/basics.hs follow the below instructions:
+
+If you compiled the library with stack
+
+```
+$ stack runhaskell examples/basics.hs
+```
+
+
+If you compiled/installed the library with cabal
 
 ```
 $ runhaskell examples/basics.hs
 ```
 
-The data is saved to txt files that are then used to generate plots in python
-using matplotlib
+The data is saved to text (.txt) files that are then used to generate plots in Python
+using matplotlib. 
+
+WARNING: If you do not have python or matplotlib installed the figure
+will not be generated.
 
 
 
@@ -81,7 +110,7 @@ Change log
 ---------
 
 - Added transmission delays to spikes. This ensure that the simulation doesn't
-explode and progresses over time (esp for recurrent netwoks)
+explode and progresses over time (esp for recurrent networks)
 
-- Added refractory period to spikes. Once agian as a measure to ensure the
+- Added refractory period to spikes. Once again as a measure to ensure the
   network activity doesn't explode.
