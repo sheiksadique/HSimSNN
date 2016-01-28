@@ -51,7 +51,6 @@ passThroughNetwork net spkTrain tsim =
         (go spkTrain tsim)
         (net,EmptySpikeTrain)
   where
-    -- go :: SpikeTrain -> Double -> NetworkState -> NetworkState
     go :: SpikeTrain -> Double -> State NetworkState DelayedSpikes
     go EmptySpikeTrain tsim = do
         (network,spkout) <- get
@@ -99,6 +98,54 @@ passThroughNetwork net spkTrain tsim =
                 dspktrn <-
                     go EmptySpikeTrain tsim
                 return (mergeST dspktrn (SpikeTrain spktrn))
+
+passThroughNetwork' :: NetworkState -> SpikeTrain -> Maybe Int -> Double -> NetworkState
+passThroughNetwork' netState _ Nothing _ = netState
+passThroughNetwork' (net,spkout) EmptySpikeTrain (Just idx) tSim =
+    if (tNext > tSim) -- next spike time after tsim
+        then (net,spkout)
+        else let net' = resetNeuronNinNet idx tNext net
+             in (net', concST spkout newspk)
+  where tNext = getTime (nextSpikeTime
+                            ((neurons . population) net V.!
+                            idx))
+        newspk = SpikeTrain (VU.singleton (Spike (idx, tNext)))
+
+passThroughNetwork' (net,spkout) (SpikeTrain spktrn) (Just idx) tSim =
+    let Spike (aIx,t) = VU.head spktrn -- First spike
+    in if (t <= tSim)
+            then let net' = updateAllNeurons net aIx t
+                 in (net', spkout)
+            else (net, spkout)
+
+passThroughSpikes :: NetworkState -> Maybe Int -> Double -> DelayedSpikes
+passThroughSpikes _ Nothing _ = EmptySpikeTrain
+passThroughSpikes (net, EmptySpikeTrain) (Just idx) tsim =
+    if (tNext > tsim) -- next spike time after tsim
+        then EmptySpikeTrain
+        else undefined
+  where
+    tNext = getTime (nextSpikeTime
+                        ((neurons . population) net V.!
+                       idx))
+    newspk = SpikeTrain (VU.singleton (Spike (idx, tNext)))
+    delay = 1.0 -- Spike transmission delay hardcoded
+passThroughSpikes (net, (SpikeTrain spktrn)) (Just idx) tsim = do
+           let Spike (indx,t) =
+                   VU.head spktrn -- First spike
+           if (t <= tsim)
+               then undefined
+                   --dspktrn <- go EmptySpikeTrain t -- Delayed spikes
+                   -- Process reminder spikes
+                   -- let restspk = VU.tail spktrn -- reminder of spikes
+                   -- go (mergeST dspktrn (SpikeTrain restspk))
+                   --    tsim
+               else undefined -- Input spikes arrive after simulation time so they don't matter
+                   -- dspktrn <-
+                   --     go EmptySpikeTrain tsim
+                   -- return (mergeST dspktrn (SpikeTrain spktrn))
+
+
 
 -- | Update all neurons connected to this axon
 updateAllNeurons :: Network -> Int -> Double -> Network
