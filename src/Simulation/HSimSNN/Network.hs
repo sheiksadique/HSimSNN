@@ -87,7 +87,7 @@ passThroughNetwork net spkTrain tsim =
                 dspktrn <- go EmptySpikeTrain t -- Delayed spikes
                 -- Apply first spike
                 (net,spkout) <- get
-                let net' = updateAllNeurons net indx t
+                let net' = updateAllNeuronsFromAxon net indx t
                 put (net',spkout)
                 -- Process reminder spikes
                 let restspk = VU.tail spktrn -- reminder of spikes
@@ -114,7 +114,7 @@ passThroughNetwork' (net,spkout) EmptySpikeTrain (Just idx) tSim =
 passThroughNetwork' (net,spkout) (SpikeTrain spktrn) (Just idx) tSim =
     let Spike (aIx,t) = VU.head spktrn -- First spike
     in if (t <= tSim)
-            then let net' = updateAllNeurons net aIx t
+            then let net' = updateAllNeuronsFromAxon net aIx t
                  in (net', spkout)
             else (net, spkout)
 
@@ -148,8 +148,8 @@ passThroughSpikes (net, (SpikeTrain spktrn)) (Just idx) tsim = do
 
 
 -- | Update all neurons connected to this axon
-updateAllNeurons :: Network -> Int -> Double -> Network
-updateAllNeurons net aIx t =
+updateAllNeuronsFromAxon :: Network -> Int -> Double -> Network
+updateAllNeuronsFromAxon net aIx t =
     let synInfoRow = (M.takeRow ((synInfo . connections) net) aIx)
     in VU.foldl' f net synInfoRow
   where f net (sIx, sInfo) = applyPreSynapticSpike (sIx, t) sInfo net
