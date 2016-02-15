@@ -85,13 +85,12 @@ passThroughNetwork net spkTrain tsim =
                 --update network to before the spike arrives and collect any delayed
                 --spikes
                 dspktrn <- go EmptySpikeTrain t -- Delayed spikes
-                -- Apply first spike
+                -- Apply all spikes within a time period of deltat
                 (net,spkout) <- get
-                let net' = updateAllNeuronsFromAxon net indx t
+                let (net', restspk) = applyAllSpikesWithinWindow net (SpikeTrain spktrn) 0.1 -- hardcoded time window
                 put (net',spkout)
                 -- Process reminder spikes
-                let restspk = VU.tail spktrn -- reminder of spikes
-                go (mergeST dspktrn (SpikeTrain restspk))
+                go (mergeST dspktrn restspk)
                    tsim
             else do
                 -- Input spikes arrive after simulation time so they don't matter
@@ -153,3 +152,12 @@ updateAllNeuronsFromAxon net aIx t =
     let synInfoRow = (M.takeRow ((synInfo . connections) net) aIx)
     in VU.foldl' f net synInfoRow
   where f net (sIx, sInfo) = applyPreSynapticSpike (sIx, t) sInfo net
+
+
+-- | Apply spikes from a 'SpikeList' to 'Network' withink time window and returns the residual spikes to be evaluated
+applyAllSpikesWithinWindow :: Network -> SpikeTrain -> Double -> (Network, SpikeTrain)
+applyAllSpikesWithinWindow net (SpikeTrain spktrn) dt = (net', (SpikeTrain restspk))
+        where
+            Spike (indx,t) = VU.head spktrn -- First spike
+            net' = updateAllNeuronsFromAxon net indx t
+            restspk = VU.tail spktrn -- reminder of spikes
