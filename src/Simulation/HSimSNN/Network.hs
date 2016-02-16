@@ -51,6 +51,9 @@ passThroughNetwork net spkTrain tsim =
         (go spkTrain tsim)
         (net,EmptySpikeTrain)
   where
+    delay = 1.0 -- Spike transmission delay hardcoded
+    dt = 0.1 -- Hardcoded time window
+
     go :: SpikeTrain -> Double -> State NetworkState DelayedSpikes
     go EmptySpikeTrain tsim = do
         (network,spkout) <- get
@@ -76,7 +79,6 @@ passThroughNetwork net spkTrain tsim =
                           SpikeTrain
                               (VU.singleton
                                    (Spike (indx, tn)))
-                      delay = 1.0 -- Spike transmission delay hardcoded
     go (SpikeTrain spktrn) tsim = do
         let Spike (indx,t) =
                 VU.head spktrn -- First spike
@@ -87,7 +89,7 @@ passThroughNetwork net spkTrain tsim =
                 dspktrn <- go EmptySpikeTrain t -- Delayed spikes
                 -- Apply all spikes within a time period of deltat
                 (net,spkout) <- get
-                let (net', restspk) = applyAllSpikesWithinWindow net (SpikeTrain spktrn) 0.1 -- hardcoded time window
+                let (net', restspk) = applyAllSpikesWithinWindow net (SpikeTrain spktrn) t dt
                 put (net',spkout)
                 -- Process reminder spikes
                 go (mergeST dspktrn restspk)
@@ -155,9 +157,13 @@ updateAllNeuronsFromAxon net aIx t =
 
 
 -- | Apply spikes from a 'SpikeList' to 'Network' withink time window and returns the residual spikes to be evaluated
-applyAllSpikesWithinWindow :: Network -> SpikeTrain -> Double -> (Network, SpikeTrain)
-applyAllSpikesWithinWindow net (SpikeTrain spktrn) dt = (net', (SpikeTrain restspk))
+applyAllSpikesWithinWindow :: Network -> SpikeTrain -> Double -> Double -> (Network, SpikeTrain)
+applyAllSpikesWithinWindow net st@(SpikeTrain spktrn) tstart dt
+        | isEmptySpikeTrain st = (net, EmptySpikeTrain)
+        | (dt == 0) = (net', (SpikeTrain restspk))
+        | (t < tstart+dt) = applyAllSpikesWithinWindow net' (SpikeTrain restspk) tstart dt
+        | otherwise = (net, st)
         where
             Spike (indx,t) = VU.head spktrn -- First spike
-            net' = updateAllNeuronsFromAxon net indx t
             restspk = VU.tail spktrn -- reminder of spikes
+            net' = updateAllNeuronsFromAxon net indx tstart
